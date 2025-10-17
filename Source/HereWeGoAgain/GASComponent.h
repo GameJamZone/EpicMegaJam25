@@ -29,6 +29,10 @@ public:
 	// Tag used to process input for the ability.
 	UPROPERTY(EditDefaultsOnly, Meta = (Categories = "InputTag"))
 	FGameplayTag InputTag;
+
+	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly, Category="Payload", meta=(AllowAbstract=false))
+	TObjectPtr<UObject> Payload = nullptr;
+
 };
 
 /**

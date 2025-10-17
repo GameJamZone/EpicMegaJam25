@@ -3,9 +3,13 @@
 
 #include "GASPlayerState.h"
 
+#include "HWGACharacterAttributeSet.h"
+
 AGASPlayerState::AGASPlayerState()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UGASComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+
+	CreateDefaultSubobject<UHWGACharacterAttributeSet>("AttributeSet");
 }

@@ -11,6 +11,7 @@
 
 #include "GASPlayerController.h"
 #include "GASPlayerState.h"
+#include "HWGACharacterAttributeSet.h"
 #include "ProjectGameplayTags.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerState.h"
@@ -38,6 +39,7 @@ AGASPlayerCharacter::AGASPlayerCharacter(const FObjectInitializer& ObjectInitial
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+	
 }
 
 void AGASPlayerCharacter::NotifyControllerChanged()
@@ -101,8 +103,8 @@ void AGASPlayerCharacter::GiveToAbilitySystem(FAbilitySet_GrantedHandles* OutGra
 		
 		UGameplayAbility* AbilityCDO = AbilityToGrant.Ability->GetDefaultObject<UGameplayAbility>();
 
-		FGameplayAbilitySpec AbilitySpec(AbilityCDO, AbilityToGrant.AbilityLevel);
-		AbilitySpec.DynamicAbilityTags.AddTag(AbilityToGrant.InputTag);
+		FGameplayAbilitySpec AbilitySpec(AbilityCDO, AbilityToGrant.AbilityLevel, INDEX_NONE, AbilityToGrant.Payload);
+		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityToGrant.InputTag);
 
 		const FGameplayAbilitySpecHandle AbilitySpecHandle = AbilitySystemComponent->GiveAbility(AbilitySpec);
 
@@ -160,25 +162,25 @@ void AGASPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	if (!AbilitySystemComponent)
-	{
-		// TODO GAS Log 
-		return;
-	}
-
-	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	GiveToAbilitySystem(AbilitySystemComponent->GrantedHandles);
+	InitializeFromPlayerState();
 }
 
 void AGASPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
+	InitializeFromPlayerState();
+}
+
+void AGASPlayerCharacter::InitializeFromPlayerState()
+{
 	if (!AbilitySystemComponent)
 	{
 		if (AGASPlayerState* GASPlayerState = Cast<AGASPlayerState>(GetPlayerState()))
 		{
 			AbilitySystemComponent = GASPlayerState->GetGASAbilitySystemComp();
+			AbilitySystemComponent->InitAbilityActorInfo(GASPlayerState, this);
+			GiveToAbilitySystem(AbilitySystemComponent->GrantedHandles);
 		}
 	}
 }

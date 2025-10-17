@@ -8,6 +8,7 @@
 #include "GASComponent.h"
 #include "GASPlayerCharacter.generated.h"
 
+class UHWGACharacterAttributeSet;
 class UCameraComponent;
 class USpringArmComponent;
 struct FInputActionValue;
@@ -42,7 +43,7 @@ public:
 	TArray<TSubclassOf<class UGameplayEffect>> DefaultEffects;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GAS)
-	UGASComponent* AbilitySystemComponent;
+	TObjectPtr<UGASComponent> AbilitySystemComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GAS)
 	bool bUsingMouse = false;
@@ -62,6 +63,9 @@ private:
 	TObjectPtr<APlayerController> PlayerController;
 
 	double AimAngle = 0.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Gas, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UHWGACharacterAttributeSet> AttributeSet;
 	
 protected:
 	// Grants the ability set to the specified ability system component.
@@ -71,7 +75,8 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
-	
+	void InitializeFromPlayerState();
+
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
