@@ -12,8 +12,11 @@
 #include "GASPlayerController.h"
 #include "GASPlayerState.h"
 #include "ProjectGameplayTags.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerState.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Input/GASEnhancedInputComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AGASPlayerCharacter::AGASPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 {
@@ -21,11 +24,66 @@ AGASPlayerCharacter::AGASPlayerCharacter(const FObjectInitializer& ObjectInitial
 	// bUseControllerRotationYaw = true;
 	// GetCharacterMovement()->bOrientRotationToMovement = true;
 	// GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
+
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
+	SpringArmComponent->SetupAttachment(RootComponent);
+
+	SpringArmComponent->SetRelativeRotation(FRotator(-60.0f, 45.f, 0.0f));
+
+	SpringArmComponent->TargetArmLength = 2200.0f;
+	SpringArmComponent->bDoCollisionTest = false;
+	SpringArmComponent->bInheritYaw = false;
+	SpringArmComponent->bEnableCameraLag = true;
+	SpringArmComponent->CameraLagSpeed = 1.1f;
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	CameraComponent->SetupAttachment(SpringArmComponent);
 }
+
+void AGASPlayerCharacter::NotifyControllerChanged()
+{
+	Super::NotifyControllerChanged();
+
+	// set the player controller reference
+	PlayerController = Cast<APlayerController>(GetController());
+}
+
 
 void AGASPlayerCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+	// get the current rotation
+	const FRotator OldRotation = GetActorRotation();
+
+	// are we aiming with the mouse?
+	if (bUsingMouse)
+	{
+		if (GetLocalViewingPlayerController())
+		{
+			// get the cursor world location
+			FHitResult OutHit; 
+			PlayerController->GetHitResultUnderCursorByChannel(MouseAimTraceChannel, true, OutHit);
+
+			// find the aim rotation 
+			const FRotator AimRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), OutHit.Location);
+
+			// save the aim angle
+			AimAngle = AimRot.Yaw;
+
+			// update the yaw, reuse the pitch and roll
+			SetActorRotation(FRotator(OldRotation.Pitch, AimAngle, OldRotation.Roll));
+
+		}
+
+	} else {
+
+		// use quaternion interpolation to blend between our current rotation
+		// and the desired aim rotation using the shortest path
+		const FRotator TargetRot = FRotator(OldRotation.Pitch, AimAngle, OldRotation.Roll);
+
+		SetActorRotation(TargetRot);
+	}
 }
 
 void AGASPlayerCharacter::GiveToAbilitySystem(FAbilitySet_GrantedHandles* OutGrantedHandles) const
@@ -163,21 +221,20 @@ void AGASPlayerCharacter::Input_AbilityInputTagReleased(FGameplayTag InputTag)
 
 void AGASPlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)
 {
-	const FVector2D Value = InputActionValue.Get<FVector2D>();
-	const FRotator MovementRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+	const FVector2D Axis = InputActionValue.Get<FVector2D>();
 
-	if (Value.X != 0.0f)
-	{
-		const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
-		AddMovementInput(MovementDirection, Value.X);
-	}
-
-	if (Value.Y != 0.0f)
-	{
-		const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
-		AddMovementInput(MovementDirection, Value.Y);
-	}
+	AimAngle = FMath::RadiansToDegrees(FMath::Atan2(Axis.Y, -Axis.X)) - 45.f;
 	
+	// calculate the forward component of the input
+	FRotator FlatRot = GetControlRotation();
+	FlatRot.Pitch = 0.0f;
+	FlatRot.Yaw = 45.f;
+	
+	// apply the forward input
+	AddMovementInput(FlatRot.RotateVector(FVector::ForwardVector), Axis.Y);
+	
+	// apply the right input
+	AddMovementInput(FlatRot.RotateVector(FVector::RightVector), Axis.X);
 }
 
 

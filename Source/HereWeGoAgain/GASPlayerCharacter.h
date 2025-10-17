@@ -8,6 +8,8 @@
 #include "GASComponent.h"
 #include "GASPlayerCharacter.generated.h"
 
+class UCameraComponent;
+class USpringArmComponent;
 struct FInputActionValue;
 class UGASInputConfigDataAsset;
 
@@ -20,6 +22,16 @@ class AGASPlayerCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
+
+	AGASPlayerCharacter(const FObjectInitializer& ObjectInitializer);
+
+	virtual void NotifyControllerChanged() override;
+
+	UAbilitySystemComponent* GetAbilitySystemComponent() const
+	{
+		return AbilitySystemComponent;
+	}
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category=GAS)
 	UGASInputConfigDataAsset* InputConfig;
 
@@ -29,15 +41,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GAS)
 	TArray<TSubclassOf<class UGameplayEffect>> DefaultEffects;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GAS, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GAS)
 	UGASComponent* AbilitySystemComponent;
 
-	AGASPlayerCharacter(const FObjectInitializer& ObjectInitializer);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GAS)
+	bool bUsingMouse = false;
 
-	UAbilitySystemComponent* GetAbilitySystemComponent() const
-	{
-		return AbilitySystemComponent;
-	}
+private:
+
+	UPROPERTY(editanywhere, BlueprintReadOnly, Category = GAS, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USpringArmComponent> SpringArmComponent;
+
+	UPROPERTY(editanywhere, BlueprintReadOnly, Category = GAS, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCameraComponent> CameraComponent;
+
+	UPROPERTY(EditAnywhere, Category="Input")
+	TEnumAsByte<ETraceTypeQuery> MouseAimTraceChannel;
+
+	UPROPERTY()
+	TObjectPtr<APlayerController> PlayerController;
+
+	double AimAngle = 0.f;
 	
 protected:
 	// Grants the ability set to the specified ability system component.
@@ -56,5 +80,6 @@ protected:
 
 	virtual void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_Look(const FInputActionValue& InputActionValue);
+	
 };
 
