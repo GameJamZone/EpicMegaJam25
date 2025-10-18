@@ -30,7 +30,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Meta = (Categories = "InputTag"))
 	FGameplayTag InputTag;
 
-	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly, Category="Payload", meta=(AllowAbstract=false))
+	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly, Category="Payload", meta=(AllowAbstract=false, AllowedClasses = "UAbilityPayloadBase"))
 	TObjectPtr<UObject> Payload = nullptr;
 
 };
