@@ -30,30 +30,33 @@ class HEREWEGOAGAIN_API UGA_HitReact : public UGameplayAbility
 	
 	void Jolt(ACharacter* Char, USkeletalMeshComponent* Mesh);
 
+	UFUNCTION()
+	void OnMontageCompleted();
+
 public:
 
 	// Montage to play
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Montage")
+	UPROPERTY()
 	TObjectPtr<UAnimMontage> Montage = nullptr;
 	
-	UPROPERTY(EditDefaultsOnly, Category="Knockback")
+	UPROPERTY()
 	float KnockbackDuration = 0.25f;
 
-	UPROPERTY(EditDefaultsOnly, Category="Knockback")
+	UPROPERTY()
 	float KnockbackStrength = 1200.f;
 
-	UPROPERTY(EditDefaultsOnly, Category="HitStop")
+	UPROPERTY()
 	float HitStopDuration = 0.07f;
 
-	UPROPERTY(EditDefaultsOnly, Category="HitStop")
+	UPROPERTY()
 	float HitStopDilation = 0.06f; // clamp away from zero
 
-	UPROPERTY(EditDefaultsOnly, Category="Jolt")
+	UPROPERTY()
 	float JoltDuration = 0.08f;
 
-	UPROPERTY(EditDefaultsOnly, Category="Jolt")
+	UPROPERTY()
 	float JoltCycles = 1.75f; // 1.5–2.0 cycles recommended
 	
-	UPROPERTY(EditDefaultsOnly, Category="Jolt")
+	UPROPERTY()
 	float JoltAngle = 8.f;
 };

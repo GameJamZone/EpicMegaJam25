@@ -38,6 +38,7 @@ void UGA_HitReact::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, con
 
 	if (const UAttackHitReactPayload* Payload = Cast<UAttackHitReactPayload>(Spec.SourceObject))
 	{
+		Montage = Payload->Montage;
 		KnockbackDuration = Payload->KnockbackDuration;
 		KnockbackStrength = Payload->KnockbackStrength;
 		HitStopDuration = Payload->HitStopDuration;
@@ -93,11 +94,14 @@ void UGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 			this,
 			NAME_None,
 			Montage,
-			1.0f);
+			1.2f,
+			"Default");
+
+    	Task->OnCompleted.AddDynamic(this, &UGA_HitReact::OnMontageCompleted);
     	Task->ReadyForActivation();
     	
 		ApplyHitStop(Char, HitStopDilation, HitStopDuration, KnockDir);
-    	Jolt(Char, ActorInfo->SkeletalMeshComponent.Get());
+		Jolt(Char, ActorInfo->SkeletalMeshComponent.Get());
     }
     else
     {
@@ -109,13 +113,16 @@ void UGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
                 Prim->AddImpulse(KnockDir * Magnitude, NAME_None, true);
             }
         }
+    	
+    	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
     }
 	
-    EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
+   
 }
 
 void UGA_HitReact::ApplyHitStop(ACharacter* Char, float Dilation, float DurationSec, FVector KnockDir)
 {
+	
 	if (!Char || DurationSec <= 0.f) return;
 	Dilation = FMath::Clamp(Dilation, 0.05f, 1.0f);
 
@@ -141,9 +148,9 @@ void UGA_HitReact::ApplyHitStop(ACharacter* Char, float Dilation, float Duration
 				FVector::ZeroVector,
 				0.f,
 				false);
+			
 			if (Task) Task->ReadyForActivation();
 		}
-  
 		
 	}), DurationSec, false);
 }
@@ -177,6 +184,11 @@ void UGA_HitReact::Jolt(ACharacter* Char, USkeletalMeshComponent* Mesh)
 		}
 		return true; // keep
 	}));
+}
+
+void UGA_HitReact::OnMontageCompleted()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }
 
 
