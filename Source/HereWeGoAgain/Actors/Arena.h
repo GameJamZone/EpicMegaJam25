@@ -2,7 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
 #include "Arena.generated.h"
+
 /// Arena Manager, handles spawning debris, fire and general mess for the player to clean up.
 UCLASS()
 class HEREWEGOAGAIN_API AArena : public AActor
@@ -20,10 +22,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-
-	/** Data table containing actors to spawn */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="HereWeGoAgain|Spawn", meta=(ToolTip="Data table defining what to spawn here."))
-	UDataTable* SpawnDataTable;
 	
 	/** List of spawned actors */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="HereWeGoAgain|Spawn", meta=(ToolTip="The actors that are currently spawned in this area."))
@@ -31,9 +29,9 @@ protected:
 
 	/** Spawns all actors defined in the data table */
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Spawn")
-	void SpawnFromDataTable();
+	bool SpawnAllCleanableActors();
 
 	/** Spawns all actors defined in the data table */
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Spawn")
-	void SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass);
+	bool SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass);
 };

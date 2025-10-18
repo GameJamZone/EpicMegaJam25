@@ -6,6 +6,26 @@
 #include "Engine/DataTable.h"
 #include "SpawnArea.generated.h"
 
+USTRUCT(BlueprintType)
+struct FSpawnableActorConfig
+{
+	GENERATED_BODY()
+	
+	/** Actor class to spawn (soft reference so it loads on demand) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ToolTip="Class of the actor to spawn."))
+	TSoftClassPtr<AActor> ActorClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Spawn")
+	bool bSpawnMultipleActors = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(EditCondition="bSpawnMultipleActors", EditConditionHides), Category="HereWeGoAgain|Spawn")
+	int MinSpawnCount = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(EditCondition="bSpawnMultipleActors", EditConditionHides), Category="HereWeGoAgain|Spawn")
+	int MaxSpawnCount = 1;
+};
+
+
 UCLASS()
 class HEREWEGOAGAIN_API ASpawnArea : public AActor
 {
@@ -15,16 +35,7 @@ public:
 	ASpawnArea();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="HereWeGoAgain|Spawn")
-	TArray<FGameplayTag> AllowedObjectTypes;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Spawn")
-	bool SpawnMultipleActors = true; // Set to false by default and hide the extent settings.
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Spawn")
-	int MinSpawnCount = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Spawn")
-	int MaxSpawnCount = 1;
+	TArray<FSpawnableActorConfig> SpawnableObjectConfigs;
 	
 	/** Size of the spawn area box */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Spawn")

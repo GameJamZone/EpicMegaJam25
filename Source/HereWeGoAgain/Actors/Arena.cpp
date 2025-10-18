@@ -1,8 +1,6 @@
 #include "Arena.h"
 
 #include "SpawnArea.h"
-#include "HereWeGoAgain/Data/SpawnTableRow.h"
-
 
 AArena::AArena()
 {
@@ -11,7 +9,7 @@ AArena::AArena()
 
 bool AArena::ActivateArena()
 {
-	SpawnFromDataTable();
+	SpawnAllCleanableActors();
 	return true;
 }
 
@@ -26,52 +24,62 @@ void AArena::Tick(float DeltaTime)
 
 }
 
-void AArena::SpawnFromDataTable()
+bool AArena::SpawnAllCleanableActors()
 {
-	if (!SpawnDataTable) return;
-
 	SpawnedActors.Empty();
 
-	static const FString Context = TEXT("SpawnArea Context");
-	const TArray<FName> RowNames = SpawnDataTable->GetRowNames();
-
-	for (const FName& RowName : RowNames)
+	for (ASpawnArea* SpawnArea : SpawnAreas)
 	{
-		if (const FSpawnTableRow* Row = SpawnDataTable->FindRow<FSpawnTableRow>(RowName, Context))
+		if (!SpawnArea)
 		{
-			if (!Row->ActorClass.IsNull())
+			UE_LOG(LogTemp, Warning, TEXT("A spawn area in Arena - %s is invalid."), *(this->GetName()));
+			return false;
+		}
+		
+		for (FSpawnableActorConfig ActorConfig : SpawnArea->SpawnableObjectConfigs)
+		{
+			UClass* LoadedClass = ActorConfig.ActorClass.LoadSynchronous();
+			
+			if (!LoadedClass)
 			{
-				UClass* LoadedClass = Row->ActorClass.LoadSynchronous();
+				UE_LOG(LogTemp, Warning, TEXT("The assigned class in the actor config for spawn area - %s is invalid."), *(SpawnArea->GetName()));
+				return false;
+			}
+
+			if (ActorConfig.bSpawnMultipleActors)
+			{
+				const uint32 RandomSpawnAmount = FMath::RandRange(ActorConfig.MinSpawnCount, ActorConfig.MaxSpawnCount);
 				
-				if (!LoadedClass)
-					continue;
-				
-				for (int j = 0; j < SpawnAreas.Num(); ++j)
+				for (uint32 i = 0; i < RandomSpawnAmount; i++)
 				{
-					ASpawnArea* SpawnArea = SpawnAreas[j].Get();
-
-					const FGameplayTag SpawnActorTypeTag = FGameplayTag::RequestGameplayTag(RowName);
-					if (SpawnArea->AllowedObjectTypes.Contains(SpawnActorTypeTag))
-					{
-						const uint32 RandomSpawnAmount = FMath::RandRange(SpawnArea->MinSpawnCount, SpawnArea->MaxSpawnCount);
-
-						for (uint32 i = 0; i < RandomSpawnAmount; i++)
-							SpawnOneActor(SpawnArea, LoadedClass);
-					}
+					SpawnOneActor(SpawnArea, LoadedClass);
+				}
+			}
+			else
+			{
+				if (!SpawnOneActor(SpawnArea, LoadedClass))
+				{
+					SpawnOneActor(SpawnArea, LoadedClass);
 				}
 			}
 		}
 	}
+	
+	return true;
 }
 
-void AArena::SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass)
+bool AArena::SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass)
 {
 	const FVector Location = SpawnArea->GetRandomPointInArea() + FVector(0, 0, 50.f);
 	const FRotator Rotation = FRotator::ZeroRotator;
+	
 	AActor* Spawned = GetWorld()->SpawnActor<AActor>(LoadedClass, Location, Rotation);
 				
 	if (Spawned)
 	{
 		SpawnedActors.Add(Spawned);
+		return true;
 	}
+
+	return false;
 }
