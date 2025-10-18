@@ -35,6 +35,14 @@ public:
 	// Scales root motion translation while the montage plays (1.0 = unchanged)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Montage", meta=(ClampMin="0.0"))
 	float AnimRootMotionTranslationScale = 1.f;
+
+	// Combo configuration
+	UPROPERTY(EditDefaultsOnly, Category="Combo")
+	TArray<FName> ComboSections;
+
+	// Time allowed between presses to keep the combo going
+	UPROPERTY(EditDefaultsOnly, Category="Combo", meta=(ClampMin="0.0"))
+	float ComboResetTime = 0.6f;
 };
 
 

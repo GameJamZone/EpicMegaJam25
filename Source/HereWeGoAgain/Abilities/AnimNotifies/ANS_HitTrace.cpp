@@ -66,7 +66,7 @@ void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 				// Stop only this montage if it's still playing
 				if (AnimInst->Montage_IsPlaying(ThisMontage))
 				{
-					AnimInst->Montage_Stop(0.15f, ThisMontage);
+					AnimInst->Montage_Stop(0.5f, ThisMontage);
 				}
 				else
 				{

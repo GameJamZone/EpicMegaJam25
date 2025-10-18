@@ -15,10 +15,8 @@ class HEREWEGOAGAIN_API UGA_PlayMontage : public UGameplayAbility
 {
 	GENERATED_BODY()
 
+public:
 	UGA_PlayMontage(const FObjectInitializer& ObjectInitializer);
-	
-	UPROPERTY(EditDefaultsOnly, Category="Payload")
-	TSubclassOf<UAttackMontagePayload> ExpectedPayloadClass = UAttackMontagePayload::StaticClass();
 	
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -26,7 +24,9 @@ class HEREWEGOAGAIN_API UGA_PlayMontage : public UGameplayAbility
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData) override;
 
-protected:
+	UPROPERTY(EditDefaultsOnly, Category="Payload")
+	TSubclassOf<UAttackMontagePayload> ExpectedPayloadClass = UAttackMontagePayload::StaticClass();
+	
 	// Cached from payload
 	UPROPERTY()
 	TObjectPtr<UAnimMontage> CachedMontage = nullptr;
@@ -45,12 +45,11 @@ protected:
 
 	// Montage callbacks
 	UFUNCTION()
-	void OnMontageCompleted();
+	virtual void OnMontageCompleted();
 
 	UFUNCTION()
-	void OnMontageCancelled();
+	virtual void OnMontageCancelled();
 
 	UFUNCTION()
-	void OnMontageInterrupted();
-
+	virtual void OnMontageInterrupted();
 };
