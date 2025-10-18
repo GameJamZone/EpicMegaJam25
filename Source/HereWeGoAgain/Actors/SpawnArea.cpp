@@ -6,21 +6,26 @@
 
 ASpawnArea::ASpawnArea()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ASpawnArea::OnConstruction(const FTransform& Transform)
 {
-#if WITH_EDITOR
-	DrawDebugBox(GetWorld(), GetActorLocation(), SpawnExtent, FColor::Green, false, 1.f);
-#endif
-	
 	Super::OnConstruction(Transform);
 }
 
 void ASpawnArea::BeginPlay()
 {
 	Super::BeginPlay();
+	
+#if WITH_EDITOR
+	DrawDebugBox(GetWorld(), GetActorLocation(), SpawnExtent, FColor::Green, true, 5.f);
+#endif
+}
+
+void ASpawnArea::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 FVector ASpawnArea::GetRandomPointInArea() const

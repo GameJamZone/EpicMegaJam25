@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "HWGAGameMode.h"
 
 #include "Actors/Arena.h"
@@ -9,13 +6,9 @@
 void AHWGAGameMode::BeginPlay()
 {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AArena::StaticClass(), AllArenas);
+	ensureMsgf(!AllArenas.IsEmpty(), TEXT("Found %d actors in the level."), AllArenas.Num());
 
-	UE_LOG(LogTemp, Log, TEXT("Found %d actors in the level."), AllArenas.Num());
-
-	if (AArena* Arena = CastChecked<AArena>(AllArenas[0]))
-	{
-		Arena->ActivateArena();
-	}
+	SelectRandomArenaToActivate();
 	
 	Super::BeginPlay();
 }
@@ -27,4 +20,13 @@ void AHWGAGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AHWGAGameMode::SelectRandomArenaToActivate() const
 {
+	if (AllArenas.IsEmpty())
+		return;
+	
+	const uint32 RandomValue = FMath::RandRange(0, AllArenas.Num()-1);
+	
+	if (AArena* Arena = CastChecked<AArena>(AllArenas[RandomValue]))
+	{
+		Arena->ActivateArena();
+	}
 }
