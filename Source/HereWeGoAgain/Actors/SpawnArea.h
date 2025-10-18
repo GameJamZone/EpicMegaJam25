@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NativeGameplayTags.h"
 #include "GameFramework/Actor.h"
 #include "Engine/DataTable.h"
 #include "SpawnArea.generated.h"
@@ -12,6 +13,9 @@ class HEREWEGOAGAIN_API ASpawnArea : public AActor
 	
 public:
 	ASpawnArea();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="HereWeGoAgain|Spawn")
+	TArray<FGameplayTag> AllowedObjectTypes;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Spawn")
 	bool SpawnMultipleActors = true; // Set to false by default and hide the extent settings.

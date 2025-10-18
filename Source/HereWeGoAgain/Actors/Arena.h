@@ -32,4 +32,8 @@ protected:
 	/** Spawns all actors defined in the data table */
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Spawn")
 	void SpawnFromDataTable();
+
+	/** Spawns all actors defined in the data table */
+	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Spawn")
+	void SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass);
 };
