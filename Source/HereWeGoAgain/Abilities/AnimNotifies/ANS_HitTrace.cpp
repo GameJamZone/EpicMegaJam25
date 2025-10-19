@@ -63,14 +63,12 @@ void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 			if (DamageEffect)
 			{
 				auto* Owner = Cast<ACharacter>(MeshComp->GetOwner());
-				UAbilitySystemComponent* SourceASC = nullptr;
+				UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Owner);
 
-				if (const ACharacter* Char = Cast<ACharacter>(Owner))
+				APlayerState* PS = Owner->GetPlayerState();
+				if (!SourceASC && PS)
 				{
-					if (APlayerState* PS = Char->GetPlayerState())
-					{
-						SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(PS);
-					}
+					SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(PS);
 				}
 				
 				if (SourceASC) 
@@ -84,6 +82,15 @@ void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 					if (SpecHandle.IsValid())
 					{
 						auto* targetasc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+						if (!targetasc)
+						{
+							auto* targetchar = Cast<ACharacter>(HitActor);
+							if (auto* TPS = targetchar->GetPlayerState())
+							{
+								targetasc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TPS);
+							}
+						}
+						
 						SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), targetasc);
 					}
 				}
