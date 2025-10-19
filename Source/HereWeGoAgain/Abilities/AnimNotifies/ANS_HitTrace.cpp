@@ -30,6 +30,7 @@ void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
 
 	TArray<FHitResult> HitResults;
 	

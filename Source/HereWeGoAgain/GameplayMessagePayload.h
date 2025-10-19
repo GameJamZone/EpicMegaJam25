@@ -27,3 +27,15 @@ struct FNewArenaActivatedMessage : public FGameplayMessagePayload
 	UPROPERTY(BlueprintReadWrite, Category=Message)
 	float ArenaMinCleaningQuota;
 };
+
+USTRUCT(BlueprintType)
+struct FUpdateArenaTotalsMessage : public FGameplayMessagePayload
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category=Message)
+	FGameplayTag ActorTypeTag;
+
+	UPROPERTY(BlueprintReadWrite, Category=Message)
+	int CurrentTotal; 
+};

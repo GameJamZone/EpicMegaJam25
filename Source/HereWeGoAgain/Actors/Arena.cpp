@@ -2,6 +2,9 @@
 
 #include "CleanableActor.h"
 #include "SpawnArea.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "HereWeGoAgain/GameplayMessagePayload.h"
+#include "HereWeGoAgain/ProjectGameplayTags.h"
 
 AArena::AArena()
 {
@@ -110,7 +113,18 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 
 	if (auto CleanableSpawnedActor = CastChecked<ACleanableActor>(DestroyedActor))
 	{
+		// If this fails check for an enemy
 		FGameplayTag Key = CleanableSpawnedActor->ActorTypeTag;
 		TotalCleanableObjects[Key] -= 1;
+
+		FUpdateArenaTotalsMessage UpdateArenaTotalsMessage;
+		UpdateArenaTotalsMessage.ActorTypeTag = Key;
+		UpdateArenaTotalsMessage.CurrentTotal = TotalCleanableObjects[Key];
+		
+		// Send the activation message
+		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+		FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_Updated;
+		 
+		MessageSubsystem.BroadcastMessage(ChannelTag, UpdateArenaTotalsMessage);
 	}
 }

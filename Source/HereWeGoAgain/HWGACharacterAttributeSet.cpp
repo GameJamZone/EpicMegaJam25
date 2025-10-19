@@ -53,17 +53,17 @@ void UHWGACharacterAttributeSet::PreAttributeBaseChange(const FGameplayAttribute
 
 }
 
-void UHWGACharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue,
-	float NewValue)
+void UHWGACharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
 
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
-	
-	const auto* Character = Cast<AGASPlayerCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor() );
 
-	if (!IsValid(Character))
+	if (Attribute == GetHealthAttribute())
 	{
-		return;
+		if (NewValue <= 0.f)
+		{
+			GetOwningAbilitySystemComponent()->GetAvatarActor()->Destroy();
+		}
 	}
 	
 	if (Attribute == GetBaseMovementSpeedAttribute())
@@ -73,6 +73,13 @@ void UHWGACharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& A
 
 	if (Attribute == GetMovementSpeedAttribute())
 	{
+		const auto* Character = Cast<AGASPlayerCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor() );
+
+		if (!IsValid(Character))
+		{
+			return;
+		}
+		
 		Character->GetCharacterMovement()->MaxWalkSpeed = NewValue;
 	}
 }
