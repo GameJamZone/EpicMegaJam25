@@ -17,7 +17,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena", meta=(ToolTip="The areas marking where to spawn a cleanable actor."))
 	TArray<TObjectPtr<class ASpawnArea>> SpawnAreas;
-
+	
 	bool ActivateArena();
 
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Arena")
@@ -29,22 +29,27 @@ public:
 		return TotalCleanableObjects;
 	};
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="HereWeGoAgain|Arena", meta=(ToolTip="The areas marking where to spawn a cleanable actor."))
+	float MinCleaningQuota;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	
 	/** List of spawned actors */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="HereWeGoAgain|Spawn", meta=(ToolTip="The actors that are currently spawned in this area."))
-	TMap<FGameplayTag, AActor*> SpawnedActors;
-
+	TArray<TObjectPtr<AActor>> SpawnedActors;
+	
 	UPROPERTY(BlueprintReadOnly, Category=Message)
 	TMap<FGameplayTag, int32> TotalCleanableObjects;
-
+	
 	/** Spawns all actors defined in the data table */
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Spawn")
 	bool SpawnAllCleanableActors();
-
+	
 	/** Spawns all actors defined in the data table */
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Spawn")
 	bool SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass, FGameplayTag ActorTypeTag);
+	
+	UFUNCTION()
+	void OnSpawnedActorDestroyed(AActor* DestroyedActor);
 };

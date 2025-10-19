@@ -1,5 +1,6 @@
 #include "Arena.h"
 
+#include "CleanableActor.h"
 #include "SpawnArea.h"
 
 AArena::AArena()
@@ -16,7 +17,7 @@ bool AArena::ActivateArena()
 TArray<FGameplayTag> AArena::GetAllUniqueSpawnedActorTags() const
 {
 	TArray<FGameplayTag> AllUniqueActorTags;
-	SpawnedActors.GetKeys(AllUniqueActorTags);
+	TotalCleanableObjects.GetKeys(AllUniqueActorTags);
 	
 	return AllUniqueActorTags;
 }
@@ -82,10 +83,12 @@ bool AArena::SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass, FGameplay
 	
 	AActor* Spawned = GetWorld()->SpawnActor<AActor>(LoadedClass, Location, Rotation);
 				
-	if (Spawned)
+	if (auto CleanableSpawnedActor = CastChecked<ACleanableActor>(Spawned))
 	{
-		SpawnedActors.Add(ActorTypeTag, Spawned);
-
+		CleanableSpawnedActor->OnDestroyed.AddDynamic(this, &AArena::OnSpawnedActorDestroyed);
+		CleanableSpawnedActor->ActorTypeTag = ActorTypeTag;
+		SpawnedActors.Add(CleanableSpawnedActor);
+		
 		if (TotalCleanableObjects.Contains(ActorTypeTag))
 			TotalCleanableObjects[ActorTypeTag] += 1;
 		
@@ -94,6 +97,20 @@ bool AArena::SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass, FGameplay
 		
 		return true;
 	}
-
+	
 	return false;
+}
+
+void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
+{
+	if (SpawnedActors.Contains(DestroyedActor))
+	{
+		SpawnedActors.Remove(DestroyedActor);
+	}
+
+	if (auto CleanableSpawnedActor = CastChecked<ACleanableActor>(DestroyedActor))
+	{
+		FGameplayTag Key = CleanableSpawnedActor->ActorTypeTag;
+		TotalCleanableObjects[Key] -= 1;
+	}
 }
