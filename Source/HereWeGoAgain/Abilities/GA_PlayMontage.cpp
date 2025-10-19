@@ -31,6 +31,11 @@ void UGA_PlayMontage::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, 
 		CachedPlayRate = Payload->PlayRate;
 		bCachedStopWhenAbilityEnds = Payload->bStopWhenAbilityEnds;
 		CachedAnimRootMotionTranslationScale = Payload->AnimRootMotionTranslationScale;
+
+		if (Payload->CooldownEffect)
+		{
+			CooldownGameplayEffectClass = Payload->CooldownEffect;
+		}
 	}
 
 }

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "GameplayEffect.h"
 
 #include "AbilityPayloads.generated.h"
 
@@ -6,8 +7,10 @@ UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced)
 class UAbilityPayloadBase: public UObject
 {
 	GENERATED_BODY()
+
 public:
-	
+	UPROPERTY(EditAnywhere, Category = "Ability|Cooldown")
+	TSubclassOf<UGameplayEffect> CooldownEffect;
 };
 
 UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced)

@@ -82,11 +82,7 @@ void AGASEnemyCharacter::OnRep_Controller()
 void AGASEnemyCharacter::InitializeAbilitySystemIfNeeded()
 {
 	if (!AbilitySystemComponent) return;
-
-	// If already initialized to this avatar, skip
-	const AActor* CurrentAvatar = AbilitySystemComponent->GetAvatarActor_Direct();
-	if (CurrentAvatar == this) return;
-
+	
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	CreateAndRegisterAttributeSetIfNeeded();
 }

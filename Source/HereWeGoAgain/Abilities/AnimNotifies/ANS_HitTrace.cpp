@@ -1,16 +1,17 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "ANS_HitTrace.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "UObject/ObjectMacros.h"
 #include "GameFramework/MovementComponent.h"
 #include "GameFramework/GameUserSettings.h"
+#include "GameFramework/PlayerState.h"
 #include "HereWeGoAgain/ProjectGameplayTags.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -41,39 +42,74 @@ void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 	{
 		if (Hit.bBlockingHit)
 		{
+
 			AActor* HitActor = Hit.GetActor();
 			ActorsToIgnore.Add(HitActor);
-
-			FGameplayEventData EventData;
-			EventData.EventTag = ProjectGameplayTags::Event_Combat_Hit;
-			EventData.Instigator = MeshComp->GetOwner();
-			EventData.Target = HitActor;
-			EventData.ContextHandle = FGameplayEffectContextHandle(); // optional
-			EventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
-
-			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, EventData.EventTag, EventData);
-
-			UAnimInstance* AnimInst = MeshComp->GetAnimInstance();
 			
-			if (!AnimInst)
+			if (bDoHitStun)
 			{
-				continue;
+				FGameplayEventData EventData;
+				EventData.EventTag = ProjectGameplayTags::Event_Combat_Hit;
+				EventData.Instigator = MeshComp->GetOwner();
+				EventData.Target = HitActor;
+				EventData.ContextHandle = FGameplayEffectContextHandle(); // optional
+				EventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
+
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, EventData.EventTag, EventData);
 			}
 			
-			// If this notify is inside a montage, Animation will be a UAnimMontage
-			if (UAnimMontage* ThisMontage = Cast<UAnimMontage>(Animation))
+			//apply damage gameplay effect 
+			if (DamageEffect)
 			{
-				// Stop only this montage if it's still playing
-				if (AnimInst->Montage_IsPlaying(ThisMontage))
+				auto* Owner = Cast<ACharacter>(MeshComp->GetOwner());
+				UAbilitySystemComponent* SourceASC = nullptr;
+
+				if (const ACharacter* Char = Cast<ACharacter>(Owner))
 				{
-					AnimInst->Montage_Stop(0.5f, ThisMontage);
+					if (APlayerState* PS = Char->GetPlayerState())
+					{
+						SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(PS);
+					}
 				}
-				else
+				
+				if (SourceASC) 
 				{
-					// Fallback: stop any playing montage
-					AnimInst->StopAllMontages(0.15f);
+					FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
+					EffectContext.AddSourceObject(Owner);
+					EffectContext.AddInstigator(Owner, Owner);
+					EffectContext.AddHitResult(Hit);
+
+					FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, 1, EffectContext);
+					if (SpecHandle.IsValid())
+					{
+						auto* targetasc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+						SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), targetasc);
+					}
 				}
 			}
+			
+
+			// UAnimInstance* AnimInst = MeshComp->GetAnimInstance();
+			//
+			// if (!AnimInst)
+			// {
+			// 	continue;
+			// }
+			//
+			// // If this notify is inside a montage, Animation will be a UAnimMontage
+			// if (UAnimMontage* ThisMontage = Cast<UAnimMontage>(Animation))
+			// {
+			// 	// Stop only this montage if it's still playing
+			// 	if (AnimInst->Montage_IsPlaying(ThisMontage))
+			// 	{
+			// 		AnimInst->Montage_Stop(0.5f, ThisMontage);
+			// 	}
+			// 	else
+			// 	{
+			// 		// Fallback: stop any playing montage
+			// 		AnimInst->StopAllMontages(0.15f);
+			// 	}
+			// }
 		}
 	}
 }

@@ -12,13 +12,12 @@
 
 UGA_HitReact::UGA_HitReact(const FObjectInitializer& ObjectInitializer)
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
 
 	FAbilityTriggerData TriggerData;
 	TriggerData.TriggerTag   = ProjectGameplayTags::Event_Combat_Hit;
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 	AbilityTriggers.Add(TriggerData);
-
 }
 
 void UGA_HitReact::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -65,6 +64,8 @@ void UGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 
 	AActor* Instigator = TriggerEventData ? const_cast<AActor*>(TriggerEventData->Instigator.Get()) : nullptr;
 
+	
+
 	// Extract hit direction
 	FVector KnockDir = FVector::ZeroVector;
 	float Magnitude = KnockbackStrength;
@@ -89,6 +90,7 @@ void UGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	
     if (ACharacter* Char = Cast<ACharacter>(Avatar))
     {
+    	ActorInfo->SkeletalMeshComponent->GetAnimInstance()->StopAllMontages(0.f);
     	UAbilityTask_PlayMontageAndWait* Task =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
@@ -116,8 +118,6 @@ void UGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
     	
     	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
     }
-	
-   
 }
 
 void UGA_HitReact::ApplyHitStop(ACharacter* Char, float Dilation, float DurationSec, FVector KnockDir)
@@ -132,7 +132,7 @@ void UGA_HitReact::ApplyHitStop(ACharacter* Char, float Dilation, float Duration
 	FTimerHandle Restore;
 	Char->GetWorldTimerManager().SetTimer(Restore, FTimerDelegate::CreateWeakLambda(Char, [Char, PrevDilation, this, KnockDir]()
 	{
-		if (IsValid(Char)) Char->CustomTimeDilation = PrevDilation;
+		if (IsValid(Char)) Char->CustomTimeDilation = 1.f;
 		
 		if (!KnockDir.IsNearlyZero())
 		{

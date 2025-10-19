@@ -6,6 +6,7 @@
 #include "Animation/AnimNotifies/AnimNotifyState.h"
 #include "ANS_HitTrace.generated.h"
 
+class UGameplayEffect;
 /**
  * 
  */
@@ -26,6 +27,12 @@ public:
 
 	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")
 	float Radius = 30.f;
+
+	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")
+	bool bDoHitStun = true;
+
+	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")
+	TSubclassOf<UGameplayEffect> DamageEffect;
 	
 private:
 	UPROPERTY()

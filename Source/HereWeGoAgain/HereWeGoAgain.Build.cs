@@ -8,14 +8,14 @@ public class HereWeGoAgain : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "StateTreeModule" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "StateTreeModule", "NavigationSystem" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { "GameplayAbilities",
 	        "GameplayTags",
 	        "GameplayTasks",
 	        "GameplayMessageRuntime", 
 	        "GameplayStateTreeModule",
-	        "AIModule"
+	        "AIModule",
         });
 
         // Uncomment if you are using Slate UI
