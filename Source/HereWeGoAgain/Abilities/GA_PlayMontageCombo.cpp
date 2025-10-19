@@ -99,6 +99,11 @@ void UGA_PlayMontageCombo::InputPressed(const FGameplayAbilitySpecHandle Handle,
 	bInputBuffered = true;
 }
 
+void UGA_PlayMontageCombo::InputReleased(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+}
+
 void UGA_PlayMontageCombo::OnMontageCompleted()
 {
 	// Cache before ending; we’ll re-activate immediately if input was buffered
