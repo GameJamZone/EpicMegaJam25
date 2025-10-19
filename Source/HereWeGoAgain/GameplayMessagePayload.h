@@ -1,0 +1,26 @@
+#pragma once
+#include "GameplayTagContainer.h"
+
+#include "GameplayMessagePayload.generated.h"
+
+USTRUCT(BlueprintType)
+struct FGameplayMessagePayload
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadWrite, Category=Message, meta=(ToolTip="Tag used to match broadcast and receive messages."))
+	FGameplayTag MessageTag;
+};
+
+
+USTRUCT(BlueprintType)
+struct FNewArenaActivatedMessage : public FGameplayMessagePayload
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category=Message, meta=(ToolTip="The location of the newly activated arena."))
+	FVector ArenaPosition;
+	
+	UPROPERTY(BlueprintReadWrite, Category=Message, meta=(ToolTip="A map of all the cleanable object names and the total count for the arena."))
+	TMap<FGameplayTag, int32> TotalCleanableObjects;
+};

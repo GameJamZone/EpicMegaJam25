@@ -15,6 +15,9 @@ struct FSpawnableActorConfig
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ToolTip="Class of the actor to spawn."))
 	TSoftClassPtr<AActor> ActorClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag ActorTypeTag;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Spawn")
 	bool bSpawnMultipleActors = false;
 	

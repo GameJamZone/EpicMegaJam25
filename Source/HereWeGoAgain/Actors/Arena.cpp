@@ -13,6 +13,14 @@ bool AArena::ActivateArena()
 	return true;
 }
 
+TArray<FGameplayTag> AArena::GetAllUniqueSpawnedActorTags() const
+{
+	TArray<FGameplayTag> AllUniqueActorTags;
+	SpawnedActors.GetKeys(AllUniqueActorTags);
+	
+	return AllUniqueActorTags;
+}
+
 void AArena::BeginPlay()
 {
 	Super::BeginPlay();
@@ -21,7 +29,6 @@ void AArena::BeginPlay()
 void AArena::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 bool AArena::SpawnAllCleanableActors()
@@ -52,14 +59,14 @@ bool AArena::SpawnAllCleanableActors()
 				
 				for (uint32 i = 0; i < RandomSpawnAmount; i++)
 				{
-					SpawnOneActor(SpawnArea, LoadedClass);
+					SpawnOneActor(SpawnArea, LoadedClass, ActorConfig.ActorTypeTag);
 				}
 			}
 			else
 			{
-				if (!SpawnOneActor(SpawnArea, LoadedClass))
+				if (!SpawnOneActor(SpawnArea, LoadedClass, ActorConfig.ActorTypeTag))
 				{
-					SpawnOneActor(SpawnArea, LoadedClass);
+					SpawnOneActor(SpawnArea, LoadedClass, ActorConfig.ActorTypeTag);
 				}
 			}
 		}
@@ -68,7 +75,7 @@ bool AArena::SpawnAllCleanableActors()
 	return true;
 }
 
-bool AArena::SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass)
+bool AArena::SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass, FGameplayTag ActorTypeTag)
 {
 	const FVector Location = SpawnArea->GetRandomPointInArea() + FVector(0, 0, 50.f);
 	const FRotator Rotation = FRotator::ZeroRotator;
@@ -77,7 +84,14 @@ bool AArena::SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass)
 				
 	if (Spawned)
 	{
-		SpawnedActors.Add(Spawned);
+		SpawnedActors.Add(ActorTypeTag, Spawned);
+
+		if (TotalCleanableObjects.Contains(ActorTypeTag))
+			TotalCleanableObjects[ActorTypeTag] += 1;
+		
+		else
+			TotalCleanableObjects.Add(ActorTypeTag, 1);
+		
 		return true;
 	}
 

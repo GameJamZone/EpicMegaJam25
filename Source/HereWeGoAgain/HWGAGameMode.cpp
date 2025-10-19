@@ -1,6 +1,9 @@
 #include "HWGAGameMode.h"
 
+#include "GameplayMessagePayload.h"
+#include "ProjectGameplayTags.h"
 #include "Actors/Arena.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 
 void AHWGAGameMode::BeginPlay()
@@ -27,6 +30,20 @@ void AHWGAGameMode::SelectRandomArenaToActivate() const
 	
 	if (AArena* Arena = CastChecked<AArena>(AllArenas[RandomValue]))
 	{
+		FNewArenaActivatedMessage NewArenaActivatedMessage;
+		NewArenaActivatedMessage.ArenaPosition = Arena->GetActorLocation();
+		
 		Arena->ActivateArena();
+		
+		for (auto ActorTag : Arena->GetAllUniqueSpawnedActorTags())
+		{
+			NewArenaActivatedMessage.TotalCleanableObjects = Arena->GetTotalCleanableObjectsMap();
+		}
+
+		// Send the activation message
+		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+		FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_Activated;
+		
+		MessageSubsystem.BroadcastMessage(ChannelTag, NewArenaActivatedMessage);
 	}
 }
