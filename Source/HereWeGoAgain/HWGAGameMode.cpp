@@ -32,6 +32,7 @@ void AHWGAGameMode::SelectRandomArenaToActivate() const
 	{
 		FNewArenaActivatedMessage NewArenaActivatedMessage;
 		NewArenaActivatedMessage.ArenaPosition = Arena->GetActorLocation();
+		NewArenaActivatedMessage.ArenaMinCleaningQuota = Arena->MinCleaningQuota;
 		
 		Arena->ActivateArena();
 		
@@ -43,7 +44,7 @@ void AHWGAGameMode::SelectRandomArenaToActivate() const
 		// Send the activation message
 		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
 		FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_Activated;
-		
+		 
 		MessageSubsystem.BroadcastMessage(ChannelTag, NewArenaActivatedMessage);
 	}
 }
