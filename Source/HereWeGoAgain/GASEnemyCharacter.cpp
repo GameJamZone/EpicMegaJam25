@@ -7,6 +7,7 @@
 #include "GameplayAbilitySpec.h"
 #include "GameplayEffect.h"
 #include "GASComponent.h"
+#include "Components/StateTreeComponent.h"
 #include "HWGACharacterAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 
@@ -25,6 +26,8 @@ AGASEnemyCharacter::AGASEnemyCharacter(const FObjectInitializer& ObjectInitializ
 
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	StateTreeComp = CreateDefaultSubobject<UStateTreeComponent>(TEXT("StateTreeComp"));
 }
 
 void AGASEnemyCharacter::BeginPlay()

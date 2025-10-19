@@ -34,6 +34,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category="GAS")
 	struct FActiveGameplayEffectHandle ApplyEffectToSelf(TSubclassOf<UGameplayEffect> EffectClass, float EffectLevel = 1.f);
 
+	UPROPERTY(VisibleAnywhere, Category="AI|StateTree")
+	TObjectPtr<class UStateTreeComponent> StateTreeComp;
+
+
 protected:
 	// Character
 	virtual void BeginPlay() override;
