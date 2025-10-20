@@ -7,9 +7,19 @@ public class HereWeGoAgain : ModuleRules
 	public HereWeGoAgain(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "StateTreeModule", "NavigationSystem" });
-
+		
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"EnhancedInput", 
+			"UMG",
+			"StateTreeModule", 
+			"NavigationSystem"
+		});
+		
         PrivateDependencyModuleNames.AddRange(new string[] { "GameplayAbilities",
 	        "GameplayTags",
 	        "GameplayTasks",

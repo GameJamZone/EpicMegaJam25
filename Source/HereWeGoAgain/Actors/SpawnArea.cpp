@@ -12,6 +12,10 @@ ASpawnArea::ASpawnArea()
 void ASpawnArea::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
+
+#if WITH_EDITOR
+	DrawDebugBox(GetWorld(), GetActorLocation(), SpawnExtent, FColor::Green, true, 0.5f);
+#endif
 }
 
 void ASpawnArea::BeginPlay()
