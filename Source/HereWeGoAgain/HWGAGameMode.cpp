@@ -8,12 +8,16 @@
 
 void AHWGAGameMode::BeginPlay()
 {
+
+	Super::BeginPlay();
+	
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AArena::StaticClass(), AllArenas);
 	ensureMsgf(!AllArenas.IsEmpty(), TEXT("Found %d actors in the level."), AllArenas.Num());
 
+	// FTimerHandle handle;
+	// GetWorld()->GetTimerManager().SetTimer(handle, this, &AHWGAGameMode::SelectRandomArenaToActivate, 10.f, false); // 10 seconds ( 10 * 1000 = 10000 ms
+
 	SelectRandomArenaToActivate();
-	
-	Super::BeginPlay();
 }
 
 void AHWGAGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
