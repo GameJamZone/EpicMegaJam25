@@ -3,8 +3,12 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
+#include "Components/WidgetComponent.h"
 
 #include "Arena.generated.h"
+
+class UImage;
+class UTexture2D;
 
 /// Arena Manager, handles spawning debris, fire and general mess for the player to clean up.
 UCLASS()
@@ -15,10 +19,22 @@ class HEREWEGOAGAIN_API AArena : public AActor
 public:
 	AArena();
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UWidgetComponent* WidgetComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Image")
+	TObjectPtr<UTexture2D> ActiveTexture;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Image")
+	TObjectPtr<UTexture2D> InActiveTexture;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena", meta=(ToolTip="The areas marking where to spawn a cleanable actor."))
 	TArray<TObjectPtr<class ASpawnArea>> SpawnAreas;
 	
 	bool ActivateArena();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
+	bool bArenaIsActive = false; 
 
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Arena")
 	TArray<FGameplayTag> GetAllUniqueSpawnedActorTags() const;

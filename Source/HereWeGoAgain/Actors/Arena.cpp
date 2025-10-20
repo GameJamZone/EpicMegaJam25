@@ -3,18 +3,50 @@
 #include "CleanableActor.h"
 #include "SpawnArea.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
+#include "HereWeGoAgain/ArenaWidget.h"
 #include "HereWeGoAgain/GameplayMessagePayload.h"
 #include "HereWeGoAgain/ProjectGameplayTags.h"
 
 AArena::AArena()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	WidgetComponent->SetupAttachment(RootComponent);
+
+	// Set the widget class (replace with your blueprint path)
+	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Game/Blueprints/Widgets/W_ArenaUIDebug"));
+	if (WidgetClass.Succeeded())
+	{
+		WidgetComponent->SetWidgetClass(WidgetClass.Class);
+		
+		WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen); 
+	}
 }
 
 bool AArena::ActivateArena()
 {
 	SpawnAllCleanableActors();
-	return true;
+
+	bArenaIsActive = true;
+
+	if (UUserWidget* Widget = WidgetComponent->GetUserWidgetObject())
+	{
+		if (UArenaWidget* ImageWidget = Cast<UArenaWidget>(Widget))
+		{
+			if (auto Texture = ImageWidget->ActiveArenaTexture)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Setting ActiveArenaTexture on %s"), *ImageWidget->GetName());
+				ImageWidget->SetImageTexture(Texture);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ActiveArenaTexture is null on %s"), *ImageWidget->GetName());
+			}
+		}
+	}
+	
+	return bArenaIsActive;
 }
 
 TArray<FGameplayTag> AArena::GetAllUniqueSpawnedActorTags() const
