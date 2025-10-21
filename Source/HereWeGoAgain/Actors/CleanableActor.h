@@ -24,8 +24,8 @@ public:
 	
 	virtual void Destroyed() override
 	{
-		Super::Destroyed();
 		OnDestroyed.Broadcast(this);
+		Super::Destroyed();
 	}
 	
 protected:
