@@ -4,6 +4,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "HWGAGameMode.generated.h"
 
+class AArena;
+
 /**
  * 
  */
@@ -18,7 +20,13 @@ protected:
 
 	// This array should only contain arenas but due to the way it's populated it's of type AActor.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
-	TArray<AActor*> AllArenas;
+	TArray<TObjectPtr<AArena>> AllArenas;
 	
-	virtual void SelectRandomArenaToActivate() const;
+	virtual bool SelectRandomArenaToActivate() const;
+
+	UFUNCTION()
+	virtual void HandleArenaMinQuotaReached(AArena* DeactivatedActor);
+
+	UFUNCTION()
+	virtual void HandleArenaDeactivated(AArena* DeactivatedActor);
 };
