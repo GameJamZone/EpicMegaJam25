@@ -13,7 +13,7 @@ void AHWGAGameMode::BeginPlay()
 
 	TArray<AActor*> TempFoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AArena::StaticClass(), TempFoundActors);
-	ensureMsgf(!AllArenas.IsEmpty(), TEXT("Found %d actors in the level."), AllArenas.Num());
+	ensureMsgf(!TempFoundActors.IsEmpty(), TEXT("Found %d actors in the level."), TempFoundActors.Num());
 
 	for (AActor* Actor : TempFoundActors)
 	{
