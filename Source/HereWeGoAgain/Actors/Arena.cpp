@@ -6,6 +6,7 @@
 #include "HereWeGoAgain/ArenaWidget.h"
 #include "HereWeGoAgain/GameplayMessagePayload.h"
 #include "HereWeGoAgain/ProjectGameplayTags.h"
+#include "SpawnableInterface.h"
 
 AArena::AArena()
 {
@@ -136,12 +137,16 @@ bool AArena::SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass, FGameplay
 	const FRotator Rotation = FRotator::ZeroRotator;
 	
 	AActor* Spawned = GetWorld()->SpawnActor<AActor>(LoadedClass, Location, Rotation);
-				
-	if (auto CleanableSpawnedActor = CastChecked<ACleanableActor>(Spawned))
+	if (!Spawned)
+		return false;
+	
+	Spawned->OnDestroyed.AddDynamic(this, &AArena::OnSpawnedActorDestroyed);
+	
+	if (ISpawnableInterface* SpawnedInterface = Cast<ISpawnableInterface>(Spawned))
 	{
-		CleanableSpawnedActor->OnDestroyed.AddDynamic(this, &AArena::OnSpawnedActorDestroyed);
-		CleanableSpawnedActor->ActorTypeTag = ActorTypeTag;
-		SpawnedActors.Add(CleanableSpawnedActor);
+		Spawned->OnDestroyed.AddDynamic(this, &AArena::OnSpawnedActorDestroyed);
+		SpawnedInterface->SetActorTag(ActorTypeTag);
+		SpawnedActors.Add(Spawned);
 		
 		if (TotalCleanableObjects.Contains(ActorTypeTag))
 			TotalCleanableObjects[ActorTypeTag] += 1;
@@ -162,10 +167,10 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 		SpawnedActors.Remove(DestroyedActor);
 	}
 
-	if (auto CleanableSpawnedActor = CastChecked<ACleanableActor>(DestroyedActor))
+	if (auto CleanableSpawnedActor = CastChecked<ISpawnableInterface>(DestroyedActor))
 	{
 		// If this fails check for an enemy
-		FGameplayTag Key = CleanableSpawnedActor->ActorTypeTag;
+		FGameplayTag Key = CleanableSpawnedActor->GetActorTag();
 
 		if (!TotalCleanableObjects.Contains(Key))
 		{

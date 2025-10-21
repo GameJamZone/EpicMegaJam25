@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "Actors/SpawnableInterface.h"
 #include "GASEnemyCharacter.generated.h"
 
 struct FAbilitySet_GameplayAbility;
@@ -12,7 +13,7 @@ class UGameplayAbility;
 class UGameplayEffect;
 
 UCLASS()
-class AGASEnemyCharacter : public ACharacter, public IAbilitySystemInterface
+class AGASEnemyCharacter : public ACharacter, public IAbilitySystemInterface, public ISpawnableInterface
 {
 	GENERATED_BODY()
 
@@ -37,7 +38,16 @@ public:
 	UPROPERTY(VisibleAnywhere, Category="AI|StateTree")
 	TObjectPtr<class UStateTreeComponent> StateTreeComp;
 
+	virtual void SetActorTag(FGameplayTag ActorTag) override
+	{
+		ActorTypeTag = ActorTag;
+	};
 
+	virtual FGameplayTag GetActorTag() const override
+	{
+		return ActorTypeTag;
+	};
+	
 protected:
 	// Character
 	virtual void BeginPlay() override;
@@ -52,8 +62,7 @@ protected:
 	void GiveStartupAbilities();
 	void RemoveStartupAbilities();
 	void ApplyStartupEffects();
-
-protected:
+	
 	// Core GAS components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GAS")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -83,4 +92,7 @@ protected:
 	// If true, apply DefaultEffects once after ASC init (server-only)
 	UPROPERTY(EditDefaultsOnly, Category="GAS")
 	bool bApplyDefaultEffectsOnSpawn = true;
+
+private:
+	FGameplayTag ActorTypeTag;
 };

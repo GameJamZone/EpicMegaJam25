@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
+#include "SpawnableInterface.h"
 #include "Abilities/GameplayAbility.h"
 #include "GameFramework/Actor.h"
 #include "HereWeGoAgain/GASComponent.h"
@@ -12,21 +13,28 @@
 class UAttributeSet;
 
 UCLASS()
-class HEREWEGOAGAIN_API ACleanableActor : public AActor, public IAbilitySystemInterface
+class HEREWEGOAGAIN_API ACleanableActor : public AActor, public IAbilitySystemInterface, public ISpawnableInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	ACleanableActor();
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Cleanable)
-	FGameplayTag ActorTypeTag;
 	
 	virtual void Destroyed() override
 	{
 		OnDestroyed.Broadcast(this);
 		Super::Destroyed();
 	}
+
+	virtual void SetActorTag(FGameplayTag ActorTag) override
+	{
+		ActorTypeTag = ActorTag;
+	};
+
+	virtual FGameplayTag GetActorTag() const override
+	{
+		return ActorTypeTag;
+	};
 	
 protected:
 	virtual void BeginPlay() override;
@@ -49,7 +57,6 @@ public:
 	struct FActiveGameplayEffectHandle ApplyEffectToSelf(TSubclassOf<UGameplayEffect> EffectClass, float EffectLevel = 1.f);
 
 protected:
-
 	// GAS bootstrapping
 	void InitializeAbilitySystemIfNeeded();
 	void CreateAndRegisterAttributeSetIfNeeded();
@@ -58,8 +65,10 @@ protected:
 	void GiveStartupAbilities();
 	void RemoveStartupAbilities();
 	void ApplyStartupEffects();
-
-protected:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Cleanable)
+	FGameplayTag ActorTypeTag;
+	
 	// Core GAS components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GAS")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
