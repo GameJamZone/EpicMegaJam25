@@ -10,7 +10,7 @@
 AArena::AArena()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
+	
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
 	WidgetComponent->SetupAttachment(RootComponent);
 
@@ -19,12 +19,11 @@ AArena::AArena()
 	if (WidgetClass.Succeeded())
 	{
 		WidgetComponent->SetWidgetClass(WidgetClass.Class);
-		
 		WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen); 
 	}
 }
 
-bool AArena::ActivateArena()
+void AArena::ActivateArena()
 {
 	SpawnAllCleanableActors();
 
@@ -46,7 +45,27 @@ bool AArena::ActivateArena()
 		}
 	}
 	
-	return bArenaIsActive;
+}
+
+void AArena::DeactivateArena()
+{
+	bArenaIsActive = false;
+
+	if (UUserWidget* Widget = WidgetComponent->GetUserWidgetObject())
+	{
+		if (UArenaWidget* ImageWidget = Cast<UArenaWidget>(Widget))
+		{
+			if (auto Texture = ImageWidget->DefaultTexture)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Setting ActiveArenaTexture on %s"), *ImageWidget->GetName());
+				ImageWidget->SetImageTexture(Texture);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ActiveArenaTexture is null on %s"), *ImageWidget->GetName());
+			}
+		}
+	}
 }
 
 TArray<FGameplayTag> AArena::GetAllUniqueSpawnedActorTags() const
@@ -147,7 +166,15 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 	{
 		// If this fails check for an enemy
 		FGameplayTag Key = CleanableSpawnedActor->ActorTypeTag;
+
+		if (!TotalCleanableObjects.Contains(Key))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Attempting to destroy a cleanable actor but received an invalid type tag."));
+			return; 
+		}
+		
 		TotalCleanableObjects[Key] -= 1;
+		
 
 		FUpdateArenaTotalsMessage UpdateArenaTotalsMessage;
 		UpdateArenaTotalsMessage.ActorTypeTag = Key;
@@ -158,5 +185,35 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 		FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_Updated;
 		 
 		MessageSubsystem.BroadcastMessage(ChannelTag, UpdateArenaTotalsMessage);
+		
+		// Clean up the map
+		if (TotalCleanableObjects[Key] <= 0)
+		{
+			TotalCleanableObjects.Remove(Key);
+		}
+		
+		if (IsArenaMinQuotaCleared())
+		{
+			OnArenaMinQuotaReached.Broadcast(this);
+		}
+
+		if (IsArenaCleared())
+		{
+			DeactivateArena();
+			OnArenaDeactivated.Broadcast(this);
+		}
 	}
+}
+
+bool AArena::IsArenaMinQuotaCleared() const
+{
+	FGameplayTag Debris = FGameplayTag::RequestGameplayTag(FName(TEXT("Debris")));
+	FGameplayTag Fire = FGameplayTag::RequestGameplayTag(FName(TEXT("Fire")));
+	
+	return !TotalCleanableObjects.Contains(Debris) && !TotalCleanableObjects.Contains(Fire);
+}
+
+bool AArena::IsArenaCleared() const
+{
+	return TotalCleanableObjects.Num() == 0;
 }

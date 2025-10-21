@@ -10,6 +10,10 @@
 class UImage;
 class UTexture2D;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnArenaMinQuotaReached, AArena*, ArenaActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnArenaDeactivated, AArena*, DeactivatedArenaActor);
+
+
 /// Arena Manager, handles spawning debris, fire and general mess for the player to clean up.
 UCLASS()
 class HEREWEGOAGAIN_API AArena : public AActor
@@ -18,20 +22,27 @@ class HEREWEGOAGAIN_API AArena : public AActor
 	
 public:
 	AArena();
+
+	UPROPERTY(BlueprintAssignable, Category="HereWeGoAgain|Events")
+	FOnArenaMinQuotaReached OnArenaMinQuotaReached;
+
+	UPROPERTY(BlueprintAssignable, Category="HereWeGoAgain|Events")
+	FOnArenaDeactivated OnArenaDeactivated;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UWidgetComponent* WidgetComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Image")
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HereWeGoAgain|UI")
 	TObjectPtr<UTexture2D> ActiveTexture;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Image")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HereWeGoAgain|UI")
 	TObjectPtr<UTexture2D> InActiveTexture;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena", meta=(ToolTip="The areas marking where to spawn a cleanable actor."))
 	TArray<TObjectPtr<class ASpawnArea>> SpawnAreas;
 	
-	bool ActivateArena();
+	void ActivateArena();
+	void DeactivateArena();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
 	bool bArenaIsActive = false; 
@@ -68,4 +79,8 @@ protected:
 	
 	UFUNCTION()
 	void OnSpawnedActorDestroyed(AActor* DestroyedActor);
+
+	// Clearing Arena
+	bool IsArenaMinQuotaCleared() const;
+	bool IsArenaCleared() const;
 };
