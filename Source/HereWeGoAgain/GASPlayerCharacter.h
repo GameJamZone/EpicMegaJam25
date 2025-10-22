@@ -48,6 +48,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GAS)
 	bool bUsingMouse = false;
 
+	void SetDirectionArrowVisibility(bool bIsVisible);
+
 private:
 
 	UPROPERTY(editanywhere, BlueprintReadOnly, Category = GAS, meta = (AllowPrivateAccess = "true"))
@@ -55,6 +57,9 @@ private:
 
 	UPROPERTY(editanywhere, BlueprintReadOnly, Category = GAS, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> CameraComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GAS, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UStaticMeshComponent> DirectionArrow;
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	TEnumAsByte<ETraceTypeQuery> MouseAimTraceChannel;

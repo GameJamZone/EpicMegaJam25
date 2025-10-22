@@ -42,4 +42,8 @@ protected:
 	virtual void HandleArenaDeactivated(AArena* DeactivatedActor);
 
 	TQueue<AArena*> ArenaQueue;
+
+public:
+
+	FVector GetFirstArenaLocation() const;
 };

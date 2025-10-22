@@ -90,4 +90,18 @@ void AHWGAGameMode::HandleArenaMinQuotaReached(AArena* DeactivatedActor)
 void AHWGAGameMode::HandleArenaDeactivated(AArena* DeactivatedActor)
 {
 	//TODO
+	ArenaQueue.Dequeue(DeactivatedActor);
+}
+
+FVector AHWGAGameMode::GetFirstArenaLocation() const
+{
+	if (ArenaQueue.IsEmpty())
+	{
+		return FVector::ZeroVector;
+	}
+
+	AArena* OutArena = nullptr;
+	ArenaQueue.Peek(OutArena);
+
+	return OutArena->GetActorLocation();
 }

@@ -3,24 +3,26 @@
 #include "GASPlayerCharacter.h"
 
 #include "UObject/ConstructorHelpers.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
 #include <Abilities/GameplayAbility.h>
-
-#include "GASPlayerController.h"
 #include "GASPlayerState.h"
 #include "HWGACharacterAttributeSet.h"
+#include "HWGAGameMode.h"
 #include "ProjectGameplayTags.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Input/GASEnhancedInputComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Engine/staticmesh.h"
 
-AGASPlayerCharacter::AGASPlayerCharacter(const FObjectInitializer& ObjectInitializer)
+AGASPlayerCharacter::AGASPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	// Set size for collision capsule
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 	// Configure character movement
 	// bUseControllerRotationYaw = true;
 	// GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -39,7 +41,10 @@ AGASPlayerCharacter::AGASPlayerCharacter(const FObjectInitializer& ObjectInitial
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
-	
+
+	DirectionArrow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DirectionArrow"));
+	DirectionArrow->SetupAttachment(RootComponent);
+	DirectionArrow->SetVisibility(true);
 }
 
 void AGASPlayerCharacter::NotifyControllerChanged()
@@ -48,6 +53,11 @@ void AGASPlayerCharacter::NotifyControllerChanged()
 
 	// set the player controller reference
 	PlayerController = Cast<APlayerController>(GetController());
+}
+
+void AGASPlayerCharacter::SetDirectionArrowVisibility(bool bIsVisible)
+{
+	DirectionArrow->SetVisibility(bIsVisible);
 }
 
 
@@ -85,6 +95,22 @@ void AGASPlayerCharacter::Tick(float DeltaSeconds)
 		const FRotator TargetRot = FRotator(OldRotation.Pitch, AimAngle, OldRotation.Roll);
 
 		SetActorRotation(TargetRot);
+	}
+
+	AHWGAGameMode* GM = GetWorld() ? Cast<AHWGAGameMode>(GetWorld()->GetAuthGameMode()) : nullptr;
+	if (GM)
+	{
+		FVector MyLocation = DirectionArrow->GetComponentLocation();
+		FVector TargetLocation = GM->GetFirstArenaLocation();
+
+		// Direction vector (ignore vertical if you want only yaw rotation)
+		FVector Direction = (TargetLocation - MyLocation);
+		Direction.Z = 0.f; // Optional – keep the arrow level
+
+		FRotator LookAtRotation = Direction.Rotation() + FRotator(0, 90, 0);
+
+		// Apply rotation
+		DirectionArrow->SetWorldRotation(LookAtRotation);
 	}
 }
 

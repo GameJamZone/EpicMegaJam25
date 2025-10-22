@@ -19,6 +19,7 @@ AArena::AArena()
 	CleanableArea->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	CleanableArea->OnComponentBeginOverlap.AddDynamic(this, &AArena::OnAreanEntered);
+	CleanableArea->OnComponentEndOverlap.AddDynamic(this, &AArena::OnAreanExited);
 	
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
 	WidgetComponent->SetupAttachment(RootComponent);
@@ -59,7 +60,22 @@ void AArena::ActivateArena()
 void AArena::DeactivateArena()
 {
 	bArenaIsActive = false;
+	bAlreadyEntered = false;
+	TotalCleanableObjects.Empty();
+	SpawnedActors.Empty();
 
+	TArray<AActor*> OverlappingActors;
+	CleanableArea->GetOverlappingActors(OverlappingActors);
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		AGASPlayerCharacter* ActorChar = Cast<AGASPlayerCharacter>(Actor);
+		if (ActorChar)
+		{
+			ActorChar->SetDirectionArrowVisibility(true);
+		}
+	}
+	
 	if (UUserWidget* Widget = WidgetComponent->GetUserWidgetObject())
 	{
 		if (UArenaWidget* ImageWidget = Cast<UArenaWidget>(Widget))
@@ -258,19 +274,35 @@ bool AArena::IsArenaMinQuotaCleared() const
 
 bool AArena::IsArenaCleared() const
 {
-	return TotalCleanableObjects.Num() == 0;
+	int32 currentTotal = 0;
+	int32 maxTotal = 0;
+	
+	for (auto CleanableObjectData: TotalCleanableObjects)
+	{
+		currentTotal += CleanableObjectData.Value.Current;
+		maxTotal += CleanableObjectData.Value.Max;
+	}
+	
+	if (currentTotal == maxTotal)
+	{
+		return true;
+	}
+	
+	return false;
 }
 
 void AArena::OnAreanEntered(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
-	const auto* Actor = Cast<AGASPlayerCharacter>(OtherActor);
+	AGASPlayerCharacter* Actor = Cast<AGASPlayerCharacter>(OtherActor);
 	
-	if (!Actor)
+	if (!Actor || !bArenaIsActive)
 	{
 		return;
 	}
+
+	Actor->SetDirectionArrowVisibility(false);
 	
 	FNewArenaActivatedMessage NewArenaActivatedMessage;
 	NewArenaActivatedMessage.ArenaPosition = GetActorLocation();
@@ -288,4 +320,17 @@ void AArena::OnAreanEntered(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	MessageSubsystem.BroadcastMessage(ChannelTag, NewArenaActivatedMessage);
 	
 	bAlreadyEntered = true;
+}
+
+void AArena::OnAreanExited(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex)
+{
+	AGASPlayerCharacter* Actor = Cast<AGASPlayerCharacter>(OtherActor);
+	
+	if (!Actor || !bArenaIsActive)
+	{
+		return;
+	}
+
+	Actor->SetDirectionArrowVisibility(true);
 }
