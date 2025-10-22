@@ -52,6 +52,14 @@ void AHWGAGameMode::SelectRandomArenaToActivate()
 		AArena* SelectedArena = InactiveArenas[RandomIndex];
 		SelectedArena->ActivateArena();
 
+		FUpdateCityDestructionMessage UpdateCityDestructionMessage;
+		UpdateCityDestructionMessage.NumActiveArenas = (AllArenas.Num() - InactiveArenas.Num()) + 1;
+		UpdateCityDestructionMessage.NumTotalArenas = AllArenas.Num();
+		
+		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+		FGameplayTag ChannelTag = ProjectGameplayTags::Message_City_Destruction_Updated;
+		MessageSubsystem.BroadcastMessage(ChannelTag, UpdateCityDestructionMessage);
+		
 		// We don't want to increase rage the first time an arena activates.
 		if (!ArenaQueue.IsEmpty())
 		{
@@ -76,7 +84,6 @@ void AHWGAGameMode::IncreaseRage()
 	
 	UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
 	FGameplayTag ChannelTag = ProjectGameplayTags::Message_Rage_Updated;
-	 
 	MessageSubsystem.BroadcastMessage(ChannelTag, UpdateRageMessage);
 }
 

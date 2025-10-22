@@ -62,3 +62,15 @@ struct FUpdateRageMessage : public FGameplayMessagePayload
 	UPROPERTY(BlueprintReadWrite, Category=Message)
 	float CurrentRageGrowthRate; 
 };
+
+USTRUCT(BlueprintType)
+struct FUpdateCityDestructionMessage : public FGameplayMessagePayload
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category=Message)
+	int NumActiveArenas;
+
+	UPROPERTY(BlueprintReadWrite, Category=Message)
+	int NumTotalArenas;
+};

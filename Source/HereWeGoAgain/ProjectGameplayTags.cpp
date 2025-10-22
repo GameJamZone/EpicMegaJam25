@@ -12,5 +12,6 @@ namespace ProjectGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Message_Arena_Activated, "Message.Arena.Activated");
     UE_DEFINE_GAMEPLAY_TAG(Message_Arena_Updated, "Message.Arena.Updated");
     UE_DEFINE_GAMEPLAY_TAG(Message_Arena_MinQuotaCleared, "Message.Arena.MinQuota.Cleared");
+    UE_DEFINE_GAMEPLAY_TAG(Message_City_Destruction_Updated, "Message.City.Destruction.Updated");
     UE_DEFINE_GAMEPLAY_TAG(Message_Rage_Updated, "Message.Rage.Updated");
 }

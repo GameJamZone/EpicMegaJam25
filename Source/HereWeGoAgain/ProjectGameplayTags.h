@@ -13,5 +13,6 @@ namespace ProjectGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Arena_Activated);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Arena_Updated);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Arena_MinQuotaCleared);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_City_Destruction_Updated);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Rage_Updated);
 }
