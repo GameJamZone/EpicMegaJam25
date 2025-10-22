@@ -22,7 +22,7 @@ struct FNewArenaActivatedMessage : public FGameplayMessagePayload
 	FVector ArenaPosition;
 	
 	UPROPERTY(BlueprintReadWrite, Category=Message, meta=(ToolTip="A map of all the cleanable object names and the total count for the arena."))
-	TMap<FGameplayTag, int32> TotalCleanableObjects;
+	TMap<FGameplayTag, FCleanableObjectData> TotalCleanableObjects;
 
 	UPROPERTY(BlueprintReadWrite, Category=Message)
 	float ArenaMinCleaningQuota;

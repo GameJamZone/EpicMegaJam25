@@ -278,7 +278,7 @@ void AArena::OnAreanEntered(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 			
 	for (auto ActorTag : GetAllUniqueSpawnedActorTags())
 	{
-		NewArenaActivatedMessage.TotalCleanableObjects = GetTotalCleanableObjectsMap();
+		NewArenaActivatedMessage.TotalCleanableObjects = TotalCleanableObjects;
 	}
 	
 	// // Send the activation message

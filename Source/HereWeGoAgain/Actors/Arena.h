@@ -21,8 +21,11 @@ struct FCleanableObjectData
 
 	FCleanableObjectData(int32 Current, int32 Max): Current(Current), Max(Max){};
 	FCleanableObjectData(): Current(0), Max(0){};
-	
+
+	UPROPERTY(editAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Spawn")
 	int32 Current;
+
+	UPROPERTY(editAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Spawn")
 	int32 Max;
 };
 
