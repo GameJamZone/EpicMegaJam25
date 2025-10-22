@@ -13,6 +13,19 @@ class UTexture2D;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnArenaMinQuotaReached, AArena*, ArenaActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnArenaDeactivated, AArena*, DeactivatedArenaActor);
 
+USTRUCT(BlueprintType)
+struct FCleanableObjectData
+{
+	GENERATED_BODY()
+
+	FCleanableObjectData(int32 Current, int32 Max): Current(Current), Max(Max){};
+	FCleanableObjectData(): Current(0), Max(0){};
+	
+	int32 Current;
+	int32 Max;
+};
+
+
 
 /// Arena Manager, handles spawning debris, fire and general mess for the player to clean up.
 UCLASS()
@@ -51,10 +64,7 @@ public:
 	TArray<FGameplayTag> GetAllUniqueSpawnedActorTags() const;
 
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Arena")
-	TMap<FGameplayTag, int32> GetTotalCleanableObjectsMap() const
-	{
-		return TotalCleanableObjects;
-	};
+	TMap<FGameplayTag, int32> GetTotalCleanableObjectsMap() const;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="HereWeGoAgain|Arena", meta=(ToolTip="The areas marking where to spawn a cleanable actor."))
 	float MinCleaningQuota;
@@ -67,7 +77,7 @@ protected:
 	TArray<TObjectPtr<AActor>> SpawnedActors;
 	
 	UPROPERTY(BlueprintReadOnly, Category=Message)
-	TMap<FGameplayTag, int32> TotalCleanableObjects;
+	TMap<FGameplayTag, FCleanableObjectData> TotalCleanableObjects;
 	
 	/** Spawns all actors defined in the data table */
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Spawn")

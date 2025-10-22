@@ -62,7 +62,10 @@ void UHWGACharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& A
 	{
 		if (NewValue <= 0.f)
 		{
-			GetOwningAbilitySystemComponent()->GetAvatarActor()->Destroy();
+			if (NewValue != OldValue)
+			{
+				GetOwningAbilitySystemComponent()->GetAvatarActor()->Destroy();
+			}
 		}
 	}
 	

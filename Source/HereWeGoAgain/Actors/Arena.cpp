@@ -77,6 +77,21 @@ TArray<FGameplayTag> AArena::GetAllUniqueSpawnedActorTags() const
 	return AllUniqueActorTags;
 }
 
+TMap<FGameplayTag, int32> AArena::GetTotalCleanableObjectsMap() const
+{
+	TMap<FGameplayTag, int32> TempMap;
+	
+	for (auto CleanableData : TotalCleanableObjects)
+	{
+		if (!TempMap.Contains(CleanableData.Key))
+		{
+			TempMap.Add(CleanableData.Key, CleanableData.Value.Max);
+		}
+	}
+	
+	return TempMap;
+}
+
 void AArena::BeginPlay()
 {
 	Super::BeginPlay();
@@ -149,10 +164,10 @@ bool AArena::SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass, FGameplay
 		SpawnedActors.Add(Spawned);
 		
 		if (TotalCleanableObjects.Contains(ActorTypeTag))
-			TotalCleanableObjects[ActorTypeTag] += 1;
+			TotalCleanableObjects[ActorTypeTag].Max += 1;
 		
 		else
-			TotalCleanableObjects.Add(ActorTypeTag, 1);
+			TotalCleanableObjects.Add(ActorTypeTag, FCleanableObjectData(0,1));
 		
 		return true;
 	}
@@ -166,6 +181,12 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 	{
 		SpawnedActors.Remove(DestroyedActor);
 	}
+	else
+	{
+		// This is required because it appears that the destroy function is called multiple times on the same actor,
+		// it's unclear where it's coming from, definitely not from the Attrib Set or the overridden Destroy.
+		return;
+	}
 
 	if (auto CleanableSpawnedActor = CastChecked<ISpawnableInterface>(DestroyedActor))
 	{
@@ -177,13 +198,12 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 			UE_LOG(LogTemp, Warning, TEXT("Attempting to destroy a cleanable actor but received an invalid type tag."));
 			return; 
 		}
-		
-		TotalCleanableObjects[Key] -= 1;
-		
 
+		TotalCleanableObjects[Key].Current += 1;
+		
 		FUpdateArenaTotalsMessage UpdateArenaTotalsMessage;
 		UpdateArenaTotalsMessage.ActorTypeTag = Key;
-		UpdateArenaTotalsMessage.CurrentTotal = TotalCleanableObjects[Key];
+		UpdateArenaTotalsMessage.CurrentTotal = TotalCleanableObjects[Key].Current;
 		
 		// Send the activation message
 		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
@@ -191,8 +211,9 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 		 
 		MessageSubsystem.BroadcastMessage(ChannelTag, UpdateArenaTotalsMessage);
 		
+		
 		// Clean up the map
-		if (TotalCleanableObjects[Key] <= 0)
+		if (TotalCleanableObjects[Key].Current >= TotalCleanableObjects[Key].Max)
 		{
 			TotalCleanableObjects.Remove(Key);
 		}
