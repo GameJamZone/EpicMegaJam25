@@ -56,7 +56,19 @@ void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 				EventData.ContextHandle = FGameplayEffectContextHandle(); // optional
 				EventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
 
-				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, EventData.EventTag, EventData);
+				auto* Targetasc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+				if (!Targetasc)
+				{
+					auto* targetchar = Cast<ACharacter>(HitActor);
+					if (auto* TPS = targetchar->GetPlayerState())
+					{
+						UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TPS, EventData.EventTag, EventData);
+					}
+				}
+				else
+				{
+					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, EventData.EventTag, EventData);
+				}
 			}
 			
 			//apply damage gameplay effect 
