@@ -45,8 +45,11 @@ protected:
 	virtual void HandleArenaDeactivated(AArena* DeactivatedActor);
 
 	TQueue<AArena*> ArenaQueue;
+	TObjectPtr<AArena> BossArena;
 
 public:
-
 	FVector GetFirstArenaLocation() const;
+	
+private:
+	FTimerHandle RageHandle;
 };

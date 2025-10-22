@@ -23,14 +23,20 @@ void AHWGAGameMode::BeginPlay()
 			Arena->OnArenaMinQuotaCleared.AddDynamic(this, &AHWGAGameMode::HandleArenaMinQuotaReached);
 			Arena->OnArenaDeactivated.AddDynamic(this, &AHWGAGameMode::HandleArenaDeactivated);
 
-			AllArenas.Add(Arena);
+			if (Arena->ActorHasTag("Boss"))
+			{
+				BossArena = Arena;
+			}
+			else
+			{
+				AllArenas.Add(Arena);
+			}
 		}
 	}
 	
 	FTimerHandle Handle;
 	GetWorld()->GetTimerManager().SetTimer(Handle, this, &AHWGAGameMode::SelectRandomArenaToActivate, ArenaSpawnRate, true, .5f);
-
-	FTimerHandle RageHandle;
+	
 	GetWorld()->GetTimerManager().SetTimer(RageHandle, this, &AHWGAGameMode::IncreaseRage, RageBuildupRate, true);
 }
 
@@ -80,6 +86,12 @@ void AHWGAGameMode::SelectRandomArenaToActivate()
 void AHWGAGameMode::IncreaseRage()
 {
 	CurrentRagePercent = CurrentRagePercent + RageGrowthRate;
+
+	if (CurrentRagePercent >= 1.f)
+	{
+		BossArena->ActivateArena();
+		GetWorld()->GetTimerManager().ClearTimer(RageHandle);
+	}
 	
 	FUpdateRageMessage UpdateRageMessage;
 	UpdateRageMessage.CurrentRagePercent = CurrentRagePercent;

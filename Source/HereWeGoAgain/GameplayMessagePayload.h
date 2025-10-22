@@ -63,6 +63,7 @@ struct FUpdateRageMessage : public FGameplayMessagePayload
 	float CurrentRageGrowthRate; 
 };
 
+
 USTRUCT(BlueprintType)
 struct FUpdateCityDestructionMessage : public FGameplayMessagePayload
 {
