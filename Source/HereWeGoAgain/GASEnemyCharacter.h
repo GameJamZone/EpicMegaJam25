@@ -6,6 +6,7 @@
 #include "Actors/SpawnableInterface.h"
 #include "GASEnemyCharacter.generated.h"
 
+class UWidgetComponent;
 struct FAbilitySet_GameplayAbility;
 class UAbilitySystemComponent;
 class UAttributeSet;
@@ -47,6 +48,8 @@ public:
 	{
 		return ActorTypeTag;
 	};
+
+	virtual void UpdateHealth(float Percent) override;
 	
 protected:
 	// Character
@@ -92,6 +95,9 @@ protected:
 	// If true, apply DefaultEffects once after ASC init (server-only)
 	UPROPERTY(EditDefaultsOnly, Category="GAS")
 	bool bApplyDefaultEffectsOnSpawn = true;
+
+	UPROPERTY(editanywhere, BlueprintReadOnly, Category = "HealthBar")
+	TObjectPtr<UWidgetComponent> HealthBarComponent;
 
 private:
 	FGameplayTag ActorTypeTag;

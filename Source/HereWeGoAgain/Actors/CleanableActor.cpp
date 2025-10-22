@@ -2,6 +2,9 @@
 
 #include "AbilitySystemComponent.h"
 #include "../GASComponent.h"
+#include "Components/ProgressBar.h"
+#include "Components/WidgetComponent.h"
+#include "HereWeGoAgain/HealthBar.h"
 #include "HereWeGoAgain/HWGACharacterAttributeSet.h"
 
 
@@ -10,8 +13,20 @@ ACleanableActor::ACleanableActor()
 	PrimaryActorTick.bCanEverTick = true;
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+
+	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
+	HealthBarComponent->SetupAttachment(RootComponent);
+	
 	check(AbilitySystemComponent);
 	
+}
+
+void ACleanableActor::UpdateHealth(float Percent)
+{
+	if (auto* HealthBar = Cast<UHealthBar>(HealthBarComponent->GetWidget()))
+	{
+		HealthBar->ProgressBar->SetPercent(Percent);
+	}
 }
 
 void ACleanableActor::BeginPlay()

@@ -5,6 +5,7 @@
 
 #include "GASPlayerCharacter.h"
 #include "GASPlayerState.h"
+#include "Actors/SpawnableInterface.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
@@ -58,15 +59,23 @@ void UHWGACharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& A
 
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
 
+	AActor* Actor = GetOwningAbilitySystemComponent()->GetAvatarActor();
 	if (Attribute == GetHealthAttribute())
 	{
 		if (NewValue <= 0.f)
 		{
 			if (NewValue != OldValue)
 			{
-				GetOwningAbilitySystemComponent()->GetAvatarActor()->Destroy();
+				Actor->Destroy();
 			}
 		}
+
+		if (ISpawnableInterface* SpawnedInterface = Cast<ISpawnableInterface>(Actor))
+		{
+			const float Percent = FMath::Clamp(NewValue / GetMaxHealth(), 0.f, 1.f);
+			SpawnedInterface->UpdateHealth(Percent);
+		}
+	
 	}
 	
 	if (Attribute == GetBaseMovementSpeedAttribute())

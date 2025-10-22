@@ -27,4 +27,7 @@ public:
 
 	UFUNCTION()
 	virtual FGameplayTag GetActorTag() const = 0;
+
+	UFUNCTION()
+	virtual void UpdateHealth(float Percent) = 0;
 };

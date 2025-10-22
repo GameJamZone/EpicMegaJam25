@@ -8,6 +8,7 @@
 #include "HereWeGoAgain/ProjectGameplayTags.h"
 #include "SpawnableInterface.h"
 #include "Components/SphereComponent.h"
+#include "HereWeGoAgain/GASPlayerCharacter.h"
 
 AArena::AArena()
 {
@@ -254,6 +255,14 @@ bool AArena::IsArenaCleared() const
 void AArena::OnAreanEntered(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+
+	const auto* Actor = Cast<AGASPlayerCharacter>(OtherActor);
+	
+	if (!Actor)
+	{
+		return;
+	}
+	
 	FNewArenaActivatedMessage NewArenaActivatedMessage;
 	NewArenaActivatedMessage.ArenaPosition = GetActorLocation();
 	NewArenaActivatedMessage.ArenaMinCleaningQuota = MinCleaningQuota;
@@ -269,4 +278,5 @@ void AArena::OnAreanEntered(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	 
 	MessageSubsystem.BroadcastMessage(ChannelTag, NewArenaActivatedMessage);
 	
+	bAlreadyEntered = true;
 }

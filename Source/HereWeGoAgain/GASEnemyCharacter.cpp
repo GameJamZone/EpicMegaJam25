@@ -7,8 +7,11 @@
 #include "GameplayAbilitySpec.h"
 #include "GameplayEffect.h"
 #include "GASComponent.h"
+#include "HealthBar.h"
 #include "Components/StateTreeComponent.h"
 #include "HWGACharacterAttributeSet.h"
+#include "Components/ProgressBar.h"
+#include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 
 AGASEnemyCharacter::AGASEnemyCharacter(const FObjectInitializer& ObjectInitializer)
@@ -27,7 +30,18 @@ AGASEnemyCharacter::AGASEnemyCharacter(const FObjectInitializer& ObjectInitializ
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
+	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
+	HealthBarComponent->SetupAttachment(RootComponent);
+
 	StateTreeComp = CreateDefaultSubobject<UStateTreeComponent>(TEXT("StateTreeComp"));
+}
+
+void AGASEnemyCharacter::UpdateHealth(float Percent)
+{
+	if (auto* HealthBar = Cast<UHealthBar>(HealthBarComponent->GetWidget()))
+	{
+		HealthBar->ProgressBar->SetPercent(Percent);
+	}
 }
 
 void AGASEnemyCharacter::BeginPlay()

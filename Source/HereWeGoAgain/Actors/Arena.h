@@ -58,6 +58,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena", meta=(ToolTip="The areas marking where to spawn a cleanable actor."))
 	TArray<TObjectPtr<class ASpawnArea>> SpawnAreas;
 	
+	bool bAlreadyEntered = false;
+
 	void ActivateArena();
 	void DeactivateArena();
 

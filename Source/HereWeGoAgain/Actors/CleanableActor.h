@@ -10,6 +10,7 @@
 #include "CleanableActor.generated.h"
 
 
+class UWidgetComponent;
 class UAttributeSet;
 
 UCLASS()
@@ -35,6 +36,8 @@ public:
 	{
 		return ActorTypeTag;
 	};
+
+	virtual void UpdateHealth(float Percent) override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -55,6 +58,9 @@ public:
 	// Apply one effect to self at runtime (server-only)
 	UFUNCTION(BlueprintCallable, Category="GAS")
 	struct FActiveGameplayEffectHandle ApplyEffectToSelf(TSubclassOf<UGameplayEffect> EffectClass, float EffectLevel = 1.f);
+
+	UPROPERTY(editanywhere, BlueprintReadOnly, Category = "HealthBar")
+	TObjectPtr<UWidgetComponent> HealthBarComponent;
 
 protected:
 	// GAS bootstrapping
