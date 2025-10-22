@@ -6,6 +6,11 @@
 #include "Animation/AnimNotifies/AnimNotifyState.h"
 #include "ANS_HitTrace.generated.h"
 
+namespace EDrawDebugTrace
+{
+	enum Type : int;
+}
+
 class UGameplayEffect;
 /**
  * 
@@ -33,6 +38,12 @@ public:
 
 	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")
 	TSubclassOf<UGameplayEffect> DamageEffect;
+
+	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+
+	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")
+	TEnumAsByte<EDrawDebugTrace::Type> DrawDebugType;
 	
 private:
 	UPROPERTY()

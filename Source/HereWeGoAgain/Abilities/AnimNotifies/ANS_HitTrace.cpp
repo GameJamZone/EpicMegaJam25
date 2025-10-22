@@ -28,16 +28,16 @@ void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 	const FVector StartSocket = MeshComp->GetSocketLocation(StartSocketName);
 	const FVector EndSocket = MeshComp->GetSocketLocation(EndSocketName);
 
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
+	// TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	// ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+	// ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
 
 	TArray<FHitResult> HitResults;
 	
 	UKismetSystemLibrary::SphereTraceMultiForObjects(MeshComp, StartSocket, EndSocket, Radius, ObjectTypes,
-	                                                 false, ActorsToIgnore, EDrawDebugTrace::ForDuration,
+	                                                 false, ActorsToIgnore, DrawDebugType,
 	                                                 HitResults, true, FLinearColor::Green,
-	                                                 FLinearColor::Green, 0.1f);
+	                                                 FLinearColor::Green, 1.f);
 
 	for (const FHitResult& Hit : HitResults)
 	{

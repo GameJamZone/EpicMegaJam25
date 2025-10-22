@@ -155,7 +155,7 @@ bool AArena::SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass, FGameplay
 	if (!Spawned)
 		return false;
 	
-	Spawned->OnDestroyed.AddDynamic(this, &AArena::OnSpawnedActorDestroyed);
+	//Spawned->OnDestroyed.AddDynamic(this, &AArena::OnSpawnedActorDestroyed);
 	
 	if (ISpawnableInterface* SpawnedInterface = Cast<ISpawnableInterface>(Spawned))
 	{
