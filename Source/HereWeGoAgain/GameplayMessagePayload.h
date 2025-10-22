@@ -41,6 +41,15 @@ struct FUpdateArenaTotalsMessage : public FGameplayMessagePayload
 	int CurrentTotal; 
 };
 
+USTRUCT(BlueprintType)
+struct FArenaMinQuotaClearedMessage : public FGameplayMessagePayload
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category=Message)
+	int MinQuota; 
+};
+
 
 USTRUCT(BlueprintType)
 struct FUpdateRageMessage : public FGameplayMessagePayload

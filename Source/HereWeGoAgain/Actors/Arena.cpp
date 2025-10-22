@@ -61,6 +61,7 @@ void AArena::DeactivateArena()
 {
 	bArenaIsActive = false;
 	bAlreadyEntered = false;
+	bMinQuotaCleared = false;
 	TotalCleanableObjects.Empty();
 	SpawnedActors.Empty();
 
@@ -235,16 +236,9 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 		 
 		MessageSubsystem.BroadcastMessage(ChannelTag, UpdateArenaTotalsMessage);
 		
-		
-		// Clean up the map
-		// if (TotalCleanableObjects[Key].Current >= TotalCleanableObjects[Key].Max)
-		// {
-		// 	TotalCleanableObjects.Remove(Key);
-		// }
-		
-		if (IsArenaMinQuotaCleared())
+		if (!bMinQuotaCleared)
 		{
-			OnArenaMinQuotaReached.Broadcast(this);
+			bMinQuotaCleared = IsArenaMinQuotaCleared();
 		}
 
 		if (IsArenaCleared())
@@ -255,7 +249,7 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 	}
 }
 
-bool AArena::IsArenaMinQuotaCleared() const
+bool AArena::IsArenaMinQuotaCleared()
 {
 	int MaxQuota = 0;
 	int CurrentAmountCleaned = 0;
@@ -268,8 +262,14 @@ bool AArena::IsArenaMinQuotaCleared() const
 
 	float MinQuotaPercent = MinCleaningQuota / 100;
 	float MinQuotaObjectCount = MaxQuota * MinQuotaPercent;
+
+	if (CurrentAmountCleaned >= MinQuotaObjectCount)
+	{
+		OnArenaMinQuotaCleared.Broadcast(this);
+		return true;
+	}
 	
-	return CurrentAmountCleaned >= MinQuotaObjectCount;
+	return false;
 }
 
 bool AArena::IsArenaCleared() const

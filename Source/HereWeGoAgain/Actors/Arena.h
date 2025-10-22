@@ -41,7 +41,7 @@ public:
 	AArena();
 
 	UPROPERTY(BlueprintAssignable, Category="HereWeGoAgain|Events")
-	FOnArenaMinQuotaReached OnArenaMinQuotaReached;
+	FOnArenaMinQuotaReached OnArenaMinQuotaCleared;
 
 	UPROPERTY(BlueprintAssignable, Category="HereWeGoAgain|Events")
 	FOnArenaDeactivated OnArenaDeactivated;
@@ -67,7 +67,10 @@ public:
 	void DeactivateArena();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
-	bool bArenaIsActive = false; 
+	bool bArenaIsActive = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
+	bool bMinQuotaCleared = false;
 
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Arena")
 	TArray<FGameplayTag> GetAllUniqueSpawnedActorTags() const;
@@ -100,7 +103,7 @@ protected:
 	void OnSpawnedActorDestroyed(AActor* DestroyedActor);
 
 	// Clearing Arena
-	bool IsArenaMinQuotaCleared() const;
+	bool IsArenaMinQuotaCleared();
 	bool IsArenaCleared() const;
 
 	UFUNCTION()

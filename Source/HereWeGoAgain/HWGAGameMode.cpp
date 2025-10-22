@@ -20,14 +20,15 @@ void AHWGAGameMode::BeginPlay()
 	{
 		if (AArena* Arena = Cast<AArena>(Actor))
 		{
-			Arena->OnArenaMinQuotaReached.AddDynamic(this, &AHWGAGameMode::HandleArenaMinQuotaReached);
+			Arena->OnArenaMinQuotaCleared.AddDynamic(this, &AHWGAGameMode::HandleArenaMinQuotaReached);
 			Arena->OnArenaDeactivated.AddDynamic(this, &AHWGAGameMode::HandleArenaDeactivated);
 
 			AllArenas.Add(Arena);
 		}
 	}
 	
-	SelectRandomArenaToActivate();
+	FTimerHandle Handle;
+	GetWorld()->GetTimerManager().SetTimer(Handle, this, &AHWGAGameMode::SelectRandomArenaToActivate, ArenaSpawnRate, true);
 }
 
 void AHWGAGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -58,10 +59,7 @@ void AHWGAGameMode::SelectRandomArenaToActivate()
 		}
 		
 		ArenaQueue.Enqueue(SelectedArena);
-
-		FTimerHandle Handle;
-		GetWorld()->GetTimerManager().SetTimer(Handle, this, &AHWGAGameMode::SelectRandomArenaToActivate, ArenaSpawnRate, false);
-
+		
 		return;
 	}
 
@@ -84,12 +82,20 @@ void AHWGAGameMode::IncreaseRage()
 
 void AHWGAGameMode::HandleArenaMinQuotaReached(AArena* DeactivatedActor)
 {
-	SelectRandomArenaToActivate();
+	FArenaMinQuotaClearedMessage ArenaMinQuotaClearedMessage;
+	ArenaMinQuotaClearedMessage.MinQuota = DeactivatedActor->MinCleaningQuota;
+		
+	// Send the activation message
+	UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_MinQuotaCleared;
+		 
+	MessageSubsystem.BroadcastMessage(ChannelTag, ArenaMinQuotaClearedMessage);
+	
+	//SelectRandomArenaToActivate();
 }
 
 void AHWGAGameMode::HandleArenaDeactivated(AArena* DeactivatedActor)
 {
-	//TODO
 	ArenaQueue.Dequeue(DeactivatedActor);
 }
 
