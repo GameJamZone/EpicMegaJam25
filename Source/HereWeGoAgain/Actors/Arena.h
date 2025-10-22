@@ -7,6 +7,7 @@
 
 #include "Arena.generated.h"
 
+class USphereComponent;
 class UImage;
 class UTexture2D;
 
@@ -44,6 +45,9 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UWidgetComponent* WidgetComponent;
+
+	UPROPERTY(editAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
+	TObjectPtr<USphereComponent> CleanableArea;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HereWeGoAgain|UI")
 	TObjectPtr<UTexture2D> ActiveTexture;
@@ -93,4 +97,15 @@ protected:
 	// Clearing Arena
 	bool IsArenaMinQuotaCleared() const;
 	bool IsArenaCleared() const;
+
+	UFUNCTION()
+	void OnAreanEntered(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+	
 };

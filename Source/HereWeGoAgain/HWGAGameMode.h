@@ -21,12 +21,17 @@ protected:
 	// This array should only contain arenas but due to the way it's populated it's of type AActor.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
 	TArray<TObjectPtr<AArena>> AllArenas;
-	
-	virtual bool SelectRandomArenaToActivate() const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
+	float ArenaSpawnRate = 20.f;
+
+	virtual void SelectRandomArenaToActivate();
 
 	UFUNCTION()
 	virtual void HandleArenaMinQuotaReached(AArena* DeactivatedActor);
 
 	UFUNCTION()
 	virtual void HandleArenaDeactivated(AArena* DeactivatedActor);
+
+	TQueue<AArena*> ArenaQueue;
 };

@@ -4,6 +4,7 @@
 #include "ProjectGameplayTags.h"
 #include "Actors/Arena.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
+#include "Containers/Queue.h"
 #include "Kismet/GameplayStatics.h"
 
 void AHWGAGameMode::BeginPlay()
@@ -25,10 +26,7 @@ void AHWGAGameMode::BeginPlay()
 			AllArenas.Add(Arena);
 		}
 	}
-
-	//FTimerHandle handle;
-	//GetWorld()->GetTimerManager().SetTimer(handle, this, &AHWGAGameMode::SelectRandomArenaToActivate, 10.f, false); // 10 seconds ( 10 * 1000 = 10000 ms
-
+	
 	SelectRandomArenaToActivate();
 }
 
@@ -37,10 +35,10 @@ void AHWGAGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-bool AHWGAGameMode::SelectRandomArenaToActivate() const
+void AHWGAGameMode::SelectRandomArenaToActivate()
 {
 	if (AllArenas.IsEmpty())
-		return false;
+		return;
 	
 	TArray<AArena*> InactiveArenas = AllArenas.FilterByPredicate([](AArena* Arena)
 	{
@@ -52,27 +50,22 @@ bool AHWGAGameMode::SelectRandomArenaToActivate() const
 		const int32 RandomIndex = FMath::RandRange(0, InactiveArenas.Num() - 1);
 		AArena* SelectedArena = InactiveArenas[RandomIndex];
 		SelectedArena->ActivateArena();
+		ArenaQueue.Enqueue(SelectedArena);
 
-		FNewArenaActivatedMessage NewArenaActivatedMessage;
-		NewArenaActivatedMessage.ArenaPosition = SelectedArena->GetActorLocation();
-		NewArenaActivatedMessage.ArenaMinCleaningQuota = SelectedArena->MinCleaningQuota;
-			
-		for (auto ActorTag : SelectedArena->GetAllUniqueSpawnedActorTags())
-		{
-			NewArenaActivatedMessage.TotalCleanableObjects = SelectedArena->GetTotalCleanableObjectsMap();
-		}
+		
+		// // Send the activation message
+		// UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+		// FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_Activated;
+		//  
+		// MessageSubsystem.BroadcastMessage(ChannelTag, NewArenaActivatedMessage);
 
-		// Send the activation message
-		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
-		FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_Activated;
-		 
-		MessageSubsystem.BroadcastMessage(ChannelTag, NewArenaActivatedMessage);
+		FTimerHandle Handle;
+		GetWorld()->GetTimerManager().SetTimer(Handle, this, &AHWGAGameMode::SelectRandomArenaToActivate, ArenaSpawnRate, false);
 
-		return true;
+		return;
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("No inactive arenas available!")); // Maybe we should do something here?
-	return false;
 }
 
 void AHWGAGameMode::HandleArenaMinQuotaReached(AArena* DeactivatedActor)

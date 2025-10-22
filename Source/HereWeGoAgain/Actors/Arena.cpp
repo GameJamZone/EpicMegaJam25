@@ -7,10 +7,17 @@
 #include "HereWeGoAgain/GameplayMessagePayload.h"
 #include "HereWeGoAgain/ProjectGameplayTags.h"
 #include "SpawnableInterface.h"
+#include "Components/SphereComponent.h"
 
 AArena::AArena()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	CleanableArea = CreateDefaultSubobject<USphereComponent>(TEXT("CleanableArea"));
+	CleanableArea->SetupAttachment(RootComponent);
+	CleanableArea->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	CleanableArea->OnComponentBeginOverlap.AddDynamic(this, &AArena::OnAreanEntered);
 	
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
 	WidgetComponent->SetupAttachment(RootComponent);
@@ -242,4 +249,24 @@ bool AArena::IsArenaMinQuotaCleared() const
 bool AArena::IsArenaCleared() const
 {
 	return TotalCleanableObjects.Num() == 0;
+}
+
+void AArena::OnAreanEntered(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	FNewArenaActivatedMessage NewArenaActivatedMessage;
+	NewArenaActivatedMessage.ArenaPosition = GetActorLocation();
+	NewArenaActivatedMessage.ArenaMinCleaningQuota = MinCleaningQuota;
+			
+	for (auto ActorTag : GetAllUniqueSpawnedActorTags())
+	{
+		NewArenaActivatedMessage.TotalCleanableObjects = GetTotalCleanableObjectsMap();
+	}
+	
+	// // Send the activation message
+	UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	const FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_Activated;
+	 
+	MessageSubsystem.BroadcastMessage(ChannelTag, NewArenaActivatedMessage);
+	
 }
