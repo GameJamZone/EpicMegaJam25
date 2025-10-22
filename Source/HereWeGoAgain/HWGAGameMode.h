@@ -26,6 +26,9 @@ protected:
 	float ArenaSpawnRate = 20.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
+	float RageBuildupRate = 5.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
 	float RageGrowthRate = 0.10f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="HereWeGoAgain|Arena")

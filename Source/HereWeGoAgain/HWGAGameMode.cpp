@@ -28,7 +28,10 @@ void AHWGAGameMode::BeginPlay()
 	}
 	
 	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, this, &AHWGAGameMode::SelectRandomArenaToActivate, ArenaSpawnRate, true);
+	GetWorld()->GetTimerManager().SetTimer(Handle, this, &AHWGAGameMode::SelectRandomArenaToActivate, ArenaSpawnRate, true, .5f);
+
+	FTimerHandle RageHandle;
+	GetWorld()->GetTimerManager().SetTimer(RageHandle, this, &AHWGAGameMode::IncreaseRage, RageBuildupRate, true);
 }
 
 void AHWGAGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -60,12 +63,12 @@ void AHWGAGameMode::SelectRandomArenaToActivate()
 		FGameplayTag ChannelTag = ProjectGameplayTags::Message_City_Destruction_Updated;
 		MessageSubsystem.BroadcastMessage(ChannelTag, UpdateCityDestructionMessage);
 		
-		// We don't want to increase rage the first time an arena activates.
-		if (!ArenaQueue.IsEmpty())
-		{
-			IncreaseRage();
-		}
-		
+		// // We don't want to increase rage the first time an arena activates.
+		// if (!ArenaQueue.IsEmpty())
+		// {
+		// 	IncreaseRage();
+		// }
+		//
 		ArenaQueue.Enqueue(SelectedArena);
 		
 		return;
