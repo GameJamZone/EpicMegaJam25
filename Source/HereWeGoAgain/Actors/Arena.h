@@ -63,7 +63,7 @@ public:
 	void ActivateArena();
 	void DeactivateArena();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
 	bool bArenaIsActive = false; 
 
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Arena")

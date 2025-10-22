@@ -221,10 +221,10 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 		
 		
 		// Clean up the map
-		if (TotalCleanableObjects[Key].Current >= TotalCleanableObjects[Key].Max)
-		{
-			TotalCleanableObjects.Remove(Key);
-		}
+		// if (TotalCleanableObjects[Key].Current >= TotalCleanableObjects[Key].Max)
+		// {
+		// 	TotalCleanableObjects.Remove(Key);
+		// }
 		
 		if (IsArenaMinQuotaCleared())
 		{
@@ -241,10 +241,19 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 
 bool AArena::IsArenaMinQuotaCleared() const
 {
-	FGameplayTag Debris = FGameplayTag::RequestGameplayTag(FName(TEXT("Debris")));
-	FGameplayTag Fire = FGameplayTag::RequestGameplayTag(FName(TEXT("Fire")));
+	int MaxQuota = 0;
+	int CurrentAmountCleaned = 0;
+
+	for (auto CleanableObjectData: TotalCleanableObjects)
+	{
+		MaxQuota += CleanableObjectData.Value.Max;
+		CurrentAmountCleaned += CleanableObjectData.Value.Current;
+	}
+
+	float MinQuotaPercent = MinCleaningQuota / 100;
+	float MinQuotaObjectCount = MaxQuota * MinQuotaPercent;
 	
-	return !TotalCleanableObjects.Contains(Debris) && !TotalCleanableObjects.Contains(Fire);
+	return CurrentAmountCleaned >= MinQuotaObjectCount;
 }
 
 bool AArena::IsArenaCleared() const
