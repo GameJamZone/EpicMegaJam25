@@ -37,6 +37,9 @@ public:
 	bool bDoHitStun = true;
 
 	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")
+	bool bShouldHitOnce = true;
+	
+	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")
 	TSubclassOf<UGameplayEffect> DamageEffect;
 
 	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")

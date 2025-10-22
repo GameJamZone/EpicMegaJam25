@@ -45,7 +45,9 @@ void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 		{
 
 			AActor* HitActor = Hit.GetActor();
-			ActorsToIgnore.Add(HitActor);
+
+			if (bShouldHitOnce)
+				ActorsToIgnore.Add(HitActor);
 			
 			if (bDoHitStun)
 			{
