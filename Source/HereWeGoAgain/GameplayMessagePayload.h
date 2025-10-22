@@ -1,5 +1,6 @@
 #pragma once
 #include "GameplayTagContainer.h"
+#include "Actors/Arena.h"
 
 #include "GameplayMessagePayload.generated.h"
 
@@ -38,4 +39,17 @@ struct FUpdateArenaTotalsMessage : public FGameplayMessagePayload
 
 	UPROPERTY(BlueprintReadWrite, Category=Message)
 	int CurrentTotal; 
+};
+
+
+USTRUCT(BlueprintType)
+struct FUpdateRageMessage : public FGameplayMessagePayload
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category=Message)
+	float CurrentRagePercent;
+
+	UPROPERTY(BlueprintReadWrite, Category=Message)
+	float CurrentRageGrowthRate; 
 };

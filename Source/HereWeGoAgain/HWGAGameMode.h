@@ -25,7 +25,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
 	float ArenaSpawnRate = 20.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
+	float RageGrowthRate = 0.10f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="HereWeGoAgain|Arena")
+	float CurrentRagePercent = 0.f;
+	
 	virtual void SelectRandomArenaToActivate();
+
+	void IncreaseRage(); 
 
 	UFUNCTION()
 	virtual void HandleArenaMinQuotaReached(AArena* DeactivatedActor);

@@ -50,14 +50,14 @@ void AHWGAGameMode::SelectRandomArenaToActivate()
 		const int32 RandomIndex = FMath::RandRange(0, InactiveArenas.Num() - 1);
 		AArena* SelectedArena = InactiveArenas[RandomIndex];
 		SelectedArena->ActivateArena();
-		ArenaQueue.Enqueue(SelectedArena);
 
+		// We don't want to increase rage the first time an arena activates.
+		if (!ArenaQueue.IsEmpty())
+		{
+			IncreaseRage();
+		}
 		
-		// // Send the activation message
-		// UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
-		// FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_Activated;
-		//  
-		// MessageSubsystem.BroadcastMessage(ChannelTag, NewArenaActivatedMessage);
+		ArenaQueue.Enqueue(SelectedArena);
 
 		FTimerHandle Handle;
 		GetWorld()->GetTimerManager().SetTimer(Handle, this, &AHWGAGameMode::SelectRandomArenaToActivate, ArenaSpawnRate, false);
@@ -66,6 +66,20 @@ void AHWGAGameMode::SelectRandomArenaToActivate()
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("No inactive arenas available!")); // Maybe we should do something here?
+}
+
+void AHWGAGameMode::IncreaseRage()
+{
+	CurrentRagePercent = CurrentRagePercent + RageGrowthRate;
+	
+	FUpdateRageMessage UpdateRageMessage;
+	UpdateRageMessage.CurrentRagePercent = CurrentRagePercent;
+	UpdateRageMessage.CurrentRageGrowthRate = RageGrowthRate;
+	
+	UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	FGameplayTag ChannelTag = ProjectGameplayTags::Message_Rage_Updated;
+	 
+	MessageSubsystem.BroadcastMessage(ChannelTag, UpdateRageMessage);
 }
 
 void AHWGAGameMode::HandleArenaMinQuotaReached(AArena* DeactivatedActor)
