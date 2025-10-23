@@ -10,7 +10,7 @@
 UGA_PlayMontageCombo::UGA_PlayMontageCombo(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	bRetriggerInstancedAbility = true;
+	bRetriggerInstancedAbility = false;
 }
 
 void UGA_PlayMontageCombo::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -70,7 +70,7 @@ void UGA_PlayMontageCombo::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 
 	LastAttackTime = Now;
 
-	CachedPlayRate = GetAbilitySystemComponentFromActorInfo()->GetSet<UHWGACharacterAttributeSet>()->GetAttackSpeedMultiplier();
+	CachedPlayRate *= GetAbilitySystemComponentFromActorInfo()->GetSet<UHWGACharacterAttributeSet>()->GetAttackSpeedMultiplier();
 	UAbilityTask_PlayMontageAndWait* Task =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
