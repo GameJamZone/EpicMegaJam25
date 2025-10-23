@@ -265,19 +265,9 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 
 		TotalCleanableObjects[Key].Current += 1;
 		
-		FUpdateArenaTotalsMessage UpdateArenaTotalsMessage;
-		UpdateArenaTotalsMessage.ActorTypeTag = Key;
-		UpdateArenaTotalsMessage.CurrentTotal = TotalCleanableObjects[Key].Current;
-		
-		// Send the activation message
-		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
-		FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_Updated;
-		 
-		MessageSubsystem.BroadcastMessage(ChannelTag, UpdateArenaTotalsMessage);
-		
 		if (!bMinQuotaCleared)
 		{
-			bMinQuotaCleared = IsArenaMinQuotaCleared();
+			bMinQuotaCleared = IsArenaMinQuotaCleared(Key);
 		}
 
 		if (IsArenaCleared())
@@ -288,7 +278,7 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 	}
 }
 
-bool AArena::IsArenaMinQuotaCleared()
+bool AArena::IsArenaMinQuotaCleared(FGameplayTag Key)
 {
 	int MaxQuota = 0;
 	int CurrentAmountCleaned = 0;
@@ -299,6 +289,19 @@ bool AArena::IsArenaMinQuotaCleared()
 		CurrentAmountCleaned += CleanableObjectData.Value.Current;
 	}
 
+	FUpdateArenaTotalsMessage UpdateArenaTotalsMessage;
+	UpdateArenaTotalsMessage.ActorTypeTag = Key;
+	UpdateArenaTotalsMessage.CurrentAmountForActorType = TotalCleanableObjects[Key].Current;
+	UpdateArenaTotalsMessage.BarMaxQuota = MaxQuota;
+	UpdateArenaTotalsMessage.BarCurrentAmountCleaned = CurrentAmountCleaned;
+		
+	// Send the activation message
+	UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_Updated;
+		 
+	MessageSubsystem.BroadcastMessage(ChannelTag, UpdateArenaTotalsMessage);
+	
+	
 	float MinQuotaPercent = MinCleaningQuota / 100;
 	float MinQuotaObjectCount = MaxQuota * MinQuotaPercent;
 

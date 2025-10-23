@@ -38,7 +38,13 @@ struct FUpdateArenaTotalsMessage : public FGameplayMessagePayload
 	FGameplayTag ActorTypeTag;
 
 	UPROPERTY(BlueprintReadWrite, Category=Message)
-	int CurrentTotal; 
+	int CurrentAmountForActorType;
+
+	UPROPERTY(BlueprintReadWrite, Category=Message)
+	int BarMaxQuota;
+
+	UPROPERTY(BlueprintReadWrite, Category=Message)
+	int BarCurrentAmountCleaned;
 };
 
 USTRUCT(BlueprintType)

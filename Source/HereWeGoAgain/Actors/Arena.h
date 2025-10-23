@@ -125,7 +125,7 @@ protected:
 	void OnSpawnedActorDestroyed(AActor* DestroyedActor);
 
 	// Clearing Arena
-	bool IsArenaMinQuotaCleared();
+	bool IsArenaMinQuotaCleared(FGameplayTag Key);
 	bool IsArenaCleared() const;
 
 	UFUNCTION()
