@@ -89,8 +89,15 @@ void AHWGAGameMode::IncreaseRage()
 
 	if (CurrentRagePercent >= 1.f)
 	{
-		BossArena->ActivateArena();
-		GetWorld()->GetTimerManager().ClearTimer(RageHandle);
+		if (IsValid(BossArena))
+		{
+			BossArena->ActivateArena();
+            GetWorld()->GetTimerManager().ClearTimer(RageHandle);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No boss arena available!"));
+		}
 	}
 	
 	FUpdateRageMessage UpdateRageMessage;
