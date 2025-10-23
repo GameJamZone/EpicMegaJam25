@@ -8,11 +8,13 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/RootMotionSource.h"
 #include "HereWeGoAgain/ProjectGameplayTags.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 
 UGA_HitReact::UGA_HitReact(const FObjectInitializer& ObjectInitializer)
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
 	FAbilityTriggerData TriggerData;
 	TriggerData.TriggerTag   = ProjectGameplayTags::Event_Combat_Hit;
@@ -38,6 +40,7 @@ void UGA_HitReact::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, con
 	if (const UAttackHitReactPayload* Payload = Cast<UAttackHitReactPayload>(Spec.SourceObject))
 	{
 		Montage = Payload->Montage;
+		HitSound = Payload->HitSound;
 		KnockbackDuration = Payload->KnockbackDuration;
 		KnockbackStrength = Payload->KnockbackStrength;
 		HitStopDuration = Payload->HitStopDuration;
@@ -104,6 +107,11 @@ void UGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	    	Task->OnCompleted.AddDynamic(this, &UGA_HitReact::OnMontageCompleted);
 	    	Task->ReadyForActivation();
 	    }
+
+    	if (HitSound)
+    	{
+    		UGameplayStatics::PlaySoundAtLocation(this, HitSound, Char->GetActorLocation());
+    	}
     	
 		ApplyHitStop(Char, HitStopDilation, HitStopDuration, KnockDir);
 		Jolt(Char, ActorInfo->SkeletalMeshComponent.Get());

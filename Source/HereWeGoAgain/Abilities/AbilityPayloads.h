@@ -60,6 +60,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Montage")
 	TObjectPtr<UAnimMontage> Montage = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Montage")
+	TObjectPtr<USoundCue> HitSound = nullptr;
+	
 	//how long knockback last for
 	UPROPERTY(EditDefaultsOnly, Category="Knockback")
 	float KnockbackDuration = 0.25f;

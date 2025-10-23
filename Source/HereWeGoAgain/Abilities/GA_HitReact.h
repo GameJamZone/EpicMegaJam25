@@ -37,26 +37,29 @@ public:
 
 	// Montage to play
 	UPROPERTY()
-	TObjectPtr<UAnimMontage> Montage = nullptr;
+	TObjectPtr<UAnimMontage> Montage;
+
+	UPROPERTY()
+	TObjectPtr<USoundCue> HitSound;
 	
 	UPROPERTY()
-	float KnockbackDuration = 0.25f;
+	float KnockbackDuration;
 
 	UPROPERTY()
-	float KnockbackStrength = 1200.f;
+	float KnockbackStrength;
 
 	UPROPERTY()
-	float HitStopDuration = 0.07f;
+	float HitStopDuration;
 
 	UPROPERTY()
-	float HitStopDilation = 0.06f; // clamp away from zero
+	float HitStopDilation; // clamp away from zero
 
 	UPROPERTY()
-	float JoltDuration = 0.08f;
+	float JoltDuration;
 
 	UPROPERTY()
-	float JoltCycles = 1.75f; // 1.5–2.0 cycles recommended
+	float JoltCycles; // 1.5–2.0 cycles recommended
 	
 	UPROPERTY()
-	float JoltAngle = 8.f;
+	float JoltAngle;
 };
