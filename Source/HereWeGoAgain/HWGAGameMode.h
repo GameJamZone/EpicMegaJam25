@@ -49,6 +49,7 @@ protected:
 
 public:
 	FVector GetFirstArenaLocation() const;
+	bool bIsBossArenaActive = false;
 	
 private:
 	FTimerHandle RageHandle;

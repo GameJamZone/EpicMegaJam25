@@ -105,6 +105,8 @@ void UGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 				"Default");
 
 	    	Task->OnCompleted.AddDynamic(this, &UGA_HitReact::OnMontageCompleted);
+	    	Task->OnCancelled.AddDynamic(this, &UGA_HitReact::OnMontageCompleted);
+	    	Task->OnInterrupted.AddDynamic(this, &UGA_HitReact::OnMontageCompleted);
 	    	Task->ReadyForActivation();
 	    }
 

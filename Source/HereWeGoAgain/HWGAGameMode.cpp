@@ -89,6 +89,7 @@ void AHWGAGameMode::IncreaseRage()
 	{
 		if (IsValid(BossArena))
 		{
+			bIsBossArenaActive = true;
 			BossArena->ActivateArena();
             GetWorld()->GetTimerManager().ClearTimer(RageHandle);
 		}
@@ -142,11 +143,16 @@ void AHWGAGameMode::HandleArenaDeactivated(AArena* DeactivatedActor)
 
 FVector AHWGAGameMode::GetFirstArenaLocation() const
 {
-	if (ArenaQueue.IsEmpty())
+	if (ArenaQueue.IsEmpty() && !bIsBossArenaActive)
 	{
 		return FVector::ZeroVector;
 	}
 
+	if (bIsBossArenaActive)
+	{
+		return BossArena->GetActorLocation();
+	}
+	
 	AArena* OutArena = nullptr;
 	ArenaQueue.Peek(OutArena);
 

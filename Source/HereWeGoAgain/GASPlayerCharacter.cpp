@@ -65,6 +65,11 @@ void AGASPlayerCharacter::SetDirectionArrowVisibility(bool bIsVisible)
 	DirectionArrow->SetVisibility(bIsVisible);
 }
 
+void AGASPlayerCharacter::SetDirectionArrowMesh()
+{
+	DirectionArrow->SetStaticMesh(RedArrowMesh);
+}
+
 
 void AGASPlayerCharacter::Tick(float DeltaSeconds)
 {

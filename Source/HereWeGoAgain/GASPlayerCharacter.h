@@ -50,10 +50,14 @@ public:
 	UPROPERTY(editanywhere, BlueprintReadOnly, Category = "HealthBar")
 	TObjectPtr<UWidgetComponent> HealthBarComponent;
 
+	UPROPERTY(editanywhere, BlueprintReadOnly, Category = "HealthBar")
+	TObjectPtr<UStaticMesh> RedArrowMesh;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GAS)
 	bool bUsingMouse = false;
 
 	void SetDirectionArrowVisibility(bool bIsVisible);
+	void SetDirectionArrowMesh();
 
 private:
 

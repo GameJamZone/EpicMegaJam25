@@ -11,6 +11,7 @@
 #include "HereWeGoAgain/GASPlayerCharacter.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AArena::AArena()
 {
@@ -30,20 +31,18 @@ AArena::AArena()
 	NiagaraEffectComponent->SetupAttachment(CleanableArea);
 	NiagaraEffectComponent->bAutoActivate = false;
 	
-	//WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
-	//WidgetComponent->SetupAttachment(RootComponent);
-
-	// Set the widget class (replace with your blueprint path)
-	// static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Game/Blueprints/Widgets/W_ArenaUIDebug"));
-	// if (WidgetClass.Succeeded())
-	// {
-	// 	WidgetComponent->SetWidgetClass(WidgetClass.Class);
-	// 	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen); 
-	// }
 }
 
 void AArena::ActivateArena()
 {
+	if (ActorHasTag("Boss"))
+	{
+		AGASPlayerCharacter* Actor = Cast<AGASPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		
+		Actor->SetDirectionArrowVisibility(true);
+		Actor->SetDirectionArrowMesh();
+	}
+	
 	if (NiagaraEffectComponent)
 	{
 		NiagaraEffectComponent->Activate(true);
@@ -57,22 +56,6 @@ void AArena::ActivateArena()
 	SpawnAllCleanableActors();
 	
 	bArenaIsActive = true;
-
-	// if (UUserWidget* Widget = WidgetComponent->GetUserWidgetObject())
-	// {
-	// 	if (UArenaWidget* ImageWidget = Cast<UArenaWidget>(Widget))
-	// 	{
-	// 		if (auto Texture = ImageWidget->ActiveArenaTexture)
-	// 		{
-	// 			UE_LOG(LogTemp, Warning, TEXT("Setting ActiveArenaTexture on %s"), *ImageWidget->GetName());
-	// 			ImageWidget->SetImageTexture(Texture);
-	// 		}
-	// 		else
-	// 		{
-	// 			UE_LOG(LogTemp, Warning, TEXT("ActiveArenaTexture is null on %s"), *ImageWidget->GetName());
-	// 		}
-	// 	}
-	// }
 }
 
 void AArena::DeactivateArena()
@@ -97,22 +80,6 @@ void AArena::DeactivateArena()
 			ActorChar->SetDirectionArrowVisibility(true);
 		}
 	}
-	
-	// if (UUserWidget* Widget = WidgetComponent->GetUserWidgetObject())
-	// {
-	// 	if (UArenaWidget* ImageWidget = Cast<UArenaWidget>(Widget))
-	// 	{
-	// 		if (auto Texture = ImageWidget->DefaultTexture)
-	// 		{
-	// 			UE_LOG(LogTemp, Warning, TEXT("Setting ActiveArenaTexture on %s"), *ImageWidget->GetName());
-	// 			ImageWidget->SetImageTexture(Texture);
-	// 		}
-	// 		else
-	// 		{
-	// 			UE_LOG(LogTemp, Warning, TEXT("ActiveArenaTexture is null on %s"), *ImageWidget->GetName());
-	// 		}
-	// 	}
-	// }
 }
 
 TArray<FGameplayTag> AArena::GetAllUniqueSpawnedActorTags() const
@@ -218,8 +185,6 @@ bool AArena::SpawnOneActor(ASpawnArea* SpawnArea, UClass* LoadedClass, FGameplay
 	AActor* Spawned = GetWorld()->SpawnActor<AActor>(LoadedClass, Location, Rotation);
 	if (!Spawned)
 		return false;
-	
-	//Spawned->OnDestroyed.AddDynamic(this, &AArena::OnSpawnedActorDestroyed);
 	
 	if (ISpawnableInterface* SpawnedInterface = Cast<ISpawnableInterface>(Spawned))
 	{
