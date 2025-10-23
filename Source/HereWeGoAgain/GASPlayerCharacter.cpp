@@ -211,7 +211,7 @@ void AGASPlayerCharacter::InitializeFromPlayerState()
 		{
 			AbilitySystemComponent = GASPlayerState->GetGASAbilitySystemComp();
 			AbilitySystemComponent->InitAbilityActorInfo(GASPlayerState, this);
-			GiveToAbilitySystem(AbilitySystemComponent->GrantedHandles);
+			//GiveToAbilitySystem(AbilitySystemComponent->GrantedHandles);
 		}
 	}
 }
