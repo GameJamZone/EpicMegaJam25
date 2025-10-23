@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "HereWeGoAgain/HWGACharacterAttributeSet.h"
 
 UGA_PlayMontageCombo::UGA_PlayMontageCombo(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -69,6 +70,7 @@ void UGA_PlayMontageCombo::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 
 	LastAttackTime = Now;
 
+	CachedPlayRate = GetAbilitySystemComponentFromActorInfo()->GetSet<UHWGACharacterAttributeSet>()->GetAttackSpeedMultiplier();
 	UAbilityTask_PlayMontageAndWait* Task =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,

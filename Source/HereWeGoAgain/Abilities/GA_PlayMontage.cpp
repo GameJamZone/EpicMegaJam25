@@ -3,6 +3,7 @@
 
 #include "GA_PlayMontage.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "HereWeGoAgain/HWGACharacterAttributeSet.h"
 
 UGA_PlayMontage::UGA_PlayMontage(const FObjectInitializer& ObjectInitializer)
 {
@@ -57,6 +58,7 @@ void UGA_PlayMontage::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		return;
 	}
 
+	CachedPlayRate = GetAbilitySystemComponentFromActorInfo()->GetSet<UHWGACharacterAttributeSet>()->GetAttackSpeedMultiplier();
 	// Play montage and bind ending callbacks
 	UAbilityTask_PlayMontageAndWait* Task =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(

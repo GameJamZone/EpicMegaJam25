@@ -124,28 +124,6 @@ void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 				}
 			}
 			
-
-			// UAnimInstance* AnimInst = MeshComp->GetAnimInstance();
-			//
-			// if (!AnimInst)
-			// {
-			// 	continue;
-			// }
-			//
-			// // If this notify is inside a montage, Animation will be a UAnimMontage
-			// if (UAnimMontage* ThisMontage = Cast<UAnimMontage>(Animation))
-			// {
-			// 	// Stop only this montage if it's still playing
-			// 	if (AnimInst->Montage_IsPlaying(ThisMontage))
-			// 	{
-			// 		AnimInst->Montage_Stop(0.5f, ThisMontage);
-			// 	}
-			// 	else
-			// 	{
-			// 		// Fallback: stop any playing montage
-			// 		AnimInst->StopAllMontages(0.15f);
-			// 	}
-			// }
 		}
 	}
 }

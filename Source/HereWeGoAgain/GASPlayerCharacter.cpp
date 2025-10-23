@@ -8,11 +8,13 @@
 #include "Engine/World.h"
 #include <Abilities/GameplayAbility.h>
 #include "GASPlayerState.h"
+#include "HealthBar.h"
 #include "HWGACharacterAttributeSet.h"
 #include "HWGAGameMode.h"
 #include "ProjectGameplayTags.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Input/GASEnhancedInputComponent.h"
@@ -45,6 +47,9 @@ AGASPlayerCharacter::AGASPlayerCharacter(const FObjectInitializer& ObjectInitial
 	DirectionArrow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DirectionArrow"));
 	DirectionArrow->SetupAttachment(RootComponent);
 	DirectionArrow->SetVisibility(true);
+
+	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
+	HealthBarComponent->SetupAttachment(RootComponent);
 }
 
 void AGASPlayerCharacter::NotifyControllerChanged()
@@ -216,13 +221,8 @@ void AGASPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!AbilitySystemComponent)
-	{
-		if (AGASPlayerState* GASPlayerState = Cast<AGASPlayerState>(GetPlayerState()))
-		{
-			AbilitySystemComponent = GASPlayerState->GetGASAbilitySystemComp();
-		}
-	}
+	InitializeFromPlayerState();
+	GiveToAbilitySystem(AbilitySystemComponent->GrantedHandles);
 }
 
 void AGASPlayerCharacter::Input_AbilityInputTagPressed(FGameplayTag InputTag)
@@ -278,5 +278,31 @@ void AGASPlayerCharacter::Input_Look(const FInputActionValue& InputActionValue)
 	if (Value.Y != 0.0f)
 	{
 		AddControllerPitchInput(Value.Y);
+	}
+}
+
+void AGASPlayerCharacter::SetActorTag(FGameplayTag ActorTag)
+{
+	
+}
+
+FGameplayTag AGASPlayerCharacter::GetActorTag() const
+{
+	return FGameplayTag();
+}
+
+void AGASPlayerCharacter::UpdateHealth(float Percent)
+{
+	if (auto* HealthBar = Cast<UHealthBar>(HealthBarComponent->GetWidget()))
+	{
+		HealthBar->InitialiseHealthBar(Percent);
+	}
+}
+
+void AGASPlayerCharacter::DepleteHealth(float Damage)
+{
+	if (auto* HealthBar = Cast<UHealthBar>(HealthBarComponent->GetWidget()))
+	{
+		HealthBar->DepleteHealthBar(Damage);
 	}
 }

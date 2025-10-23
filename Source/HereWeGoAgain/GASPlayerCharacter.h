@@ -6,8 +6,10 @@
 #include "GameplayTagContainer.h"
 #include "GameFramework/Character.h"
 #include "GASComponent.h"
+#include "Actors/SpawnableInterface.h"
 #include "GASPlayerCharacter.generated.h"
 
+class UWidgetComponent;
 class UHWGACharacterAttributeSet;
 class UCameraComponent;
 class USpringArmComponent;
@@ -18,7 +20,7 @@ class UGASInputConfigDataAsset;
  * Base class for both AI and Player characters.
  */
 UCLASS(Blueprintable)
-class AGASPlayerCharacter : public ACharacter
+class AGASPlayerCharacter : public ACharacter, public ISpawnableInterface
 {
 	GENERATED_BODY()
 
@@ -44,6 +46,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GAS)
 	TObjectPtr<UGASComponent> AbilitySystemComponent;
+
+	UPROPERTY(editanywhere, BlueprintReadOnly, Category = "HealthBar")
+	TObjectPtr<UWidgetComponent> HealthBarComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GAS)
 	bool bUsingMouse = false;
@@ -90,6 +95,11 @@ protected:
 
 	virtual void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_Look(const FInputActionValue& InputActionValue);
-	
+
+public:
+	virtual void SetActorTag(FGameplayTag ActorTag) override;
+	virtual FGameplayTag GetActorTag() const override;
+	virtual void UpdateHealth(float Percent) override;
+	virtual void DepleteHealth(float Damage) override;
 };
 
