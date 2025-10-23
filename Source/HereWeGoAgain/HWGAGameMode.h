@@ -52,4 +52,5 @@ public:
 	
 private:
 	FTimerHandle RageHandle;
+	FTimerHandle ArenaSpawnHandle;
 };

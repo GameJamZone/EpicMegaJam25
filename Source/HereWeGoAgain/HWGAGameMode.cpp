@@ -34,9 +34,7 @@ void AHWGAGameMode::BeginPlay()
 		}
 	}
 	
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, this, &AHWGAGameMode::SelectRandomArenaToActivate, ArenaSpawnRate, true, .5f);
-	
+	GetWorld()->GetTimerManager().SetTimer(ArenaSpawnHandle, this, &AHWGAGameMode::SelectRandomArenaToActivate, ArenaSpawnRate, true, .5f);
 	GetWorld()->GetTimerManager().SetTimer(RageHandle, this, &AHWGAGameMode::IncreaseRage, RageBuildupRate, true);
 }
 
@@ -98,6 +96,8 @@ void AHWGAGameMode::IncreaseRage()
 		{
 			UE_LOG(LogTemp, Warning, TEXT("No boss arena available!"));
 		}
+
+		GetWorld()->GetTimerManager().ClearTimer(ArenaSpawnHandle);
 	}
 	
 	FUpdateRageMessage UpdateRageMessage;
