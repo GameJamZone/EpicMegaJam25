@@ -12,6 +12,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 AArena::AArena()
 {
@@ -121,6 +122,10 @@ void AArena::PlayActivationEffects()
 	if (!World)
 		return;
 
+	if (SoundCue)
+		UGameplayStatics::PlaySoundAtLocation(this, SoundCue, GetActorLocation(), 10.0f);
+		//UGameplayStatics::SpawnSoundAttached(SoundCue, RootComponent);
+	
 	const FVector Location = GetActorLocation();
 	const FRotator Rotation = GetActorRotation();
 

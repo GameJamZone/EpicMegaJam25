@@ -14,6 +14,8 @@ class UImage;
 class UTexture2D;
 class UNiagaraSystem;
 class UNiagaraComponent;
+class USoundCue;
+
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnArenaMinQuotaReached, AArena*, ArenaActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnArenaDeactivated, AArena*, DeactivatedArenaActor);
@@ -52,6 +54,9 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> WidgetComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HereWeGoAgain|Arena|Effects")
+	TObjectPtr<USoundCue> SoundCue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HereWeGoAgain|Arena|Effects")
 	TObjectPtr<UNiagaraComponent> NiagaraEffectComponent;
