@@ -25,7 +25,15 @@ void ACleanableActor::UpdateHealth(float Percent)
 {
 	if (auto* HealthBar = Cast<UHealthBar>(HealthBarComponent->GetWidget()))
 	{
-		HealthBar->ProgressBar->SetPercent(Percent);
+		HealthBar->InitialiseHealthBar(Percent);
+	}
+}
+
+void ACleanableActor::DepleteHealth(float Damage)
+{
+	if (auto* HealthBar = Cast<UHealthBar>(HealthBarComponent->GetWidget()))
+	{
+		HealthBar->DepleteHealthBar(Damage);
 	}
 }
 

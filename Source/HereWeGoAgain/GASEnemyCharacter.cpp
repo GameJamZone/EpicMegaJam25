@@ -40,7 +40,15 @@ void AGASEnemyCharacter::UpdateHealth(float Percent)
 {
 	if (auto* HealthBar = Cast<UHealthBar>(HealthBarComponent->GetWidget()))
 	{
-		HealthBar->ProgressBar->SetPercent(Percent);
+		HealthBar->InitialiseHealthBar(Percent);
+	}
+}
+
+void AGASEnemyCharacter::DepleteHealth(float Damage)
+{
+	if (auto* HealthBar = Cast<UHealthBar>(HealthBarComponent->GetWidget()))
+	{
+		HealthBar->DepleteHealthBar(Damage);
 	}
 }
 

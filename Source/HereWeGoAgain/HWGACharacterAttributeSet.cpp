@@ -3,11 +3,16 @@
 
 #include "HWGACharacterAttributeSet.h"
 
+#include "GameplayMessagePayload.h"
 #include "GASPlayerCharacter.h"
 #include "GASPlayerState.h"
+#include "ProjectGameplayTags.h"
 #include "Actors/SpawnableInterface.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "Net/UnrealNetwork.h"
+
+class UGameplayMessageSubsystem;
 
 UHWGACharacterAttributeSet::UHWGACharacterAttributeSet()
 {
@@ -56,26 +61,50 @@ void UHWGACharacterAttributeSet::PreAttributeBaseChange(const FGameplayAttribute
 
 void UHWGACharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
-
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
 
 	AActor* Actor = GetOwningAbilitySystemComponent()->GetAvatarActor();
+
+
+	if (Attribute == GetMaxHealthAttribute())
+	{
+		SetHealth(NewValue);
+		if (ISpawnableInterface* SpawnedInterface = Cast<ISpawnableInterface>(Actor))
+		{
+			const float Percent = NewValue / 10.f;
+			SpawnedInterface->UpdateHealth(Percent);
+		}
+	}
+	
 	if (Attribute == GetHealthAttribute())
 	{
 		if (NewValue <= 0.f)
 		{
+			if (auto* PlayerActor = Cast<AGASPlayerCharacter>(Actor))
+			{
+				FGameplayMessagePayload Payload;
+			
+				UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+				FGameplayTag ChannelTag = ProjectGameplayTags::Event_Combat_Hit_Death;
+				MessageSubsystem.BroadcastMessage(ChannelTag, Payload);
+
+				return;
+			}
+			
 			if (NewValue != OldValue)
 			{
 				Actor->Destroy();
 			}
 		}
 
-		if (ISpawnableInterface* SpawnedInterface = Cast<ISpawnableInterface>(Actor))
+		if (NewValue < OldValue)
 		{
-			const float Percent = FMath::Clamp(NewValue / GetMaxHealth(), 0.f, 1.f);
-			SpawnedInterface->UpdateHealth(Percent);
+			if (ISpawnableInterface* SpawnedInterface = Cast<ISpawnableInterface>(Actor))
+			{
+				const float Damage = (OldValue - NewValue)/ 10.f;
+				SpawnedInterface->DepleteHealth(Damage);
+			}
 		}
-	
 	}
 	
 	if (Attribute == GetBaseMovementSpeedAttribute())

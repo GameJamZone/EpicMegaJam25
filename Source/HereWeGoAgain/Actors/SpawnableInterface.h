@@ -30,4 +30,7 @@ public:
 
 	UFUNCTION()
 	virtual void UpdateHealth(float Percent) = 0;
+
+	UFUNCTION()
+	virtual void DepleteHealth(float Damage) = 0;
 };

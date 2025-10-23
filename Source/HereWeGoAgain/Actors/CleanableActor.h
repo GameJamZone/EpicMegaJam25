@@ -38,6 +38,8 @@ public:
 	};
 
 	virtual void UpdateHealth(float Percent) override;
+
+	virtual void DepleteHealth(float Damage) override;
 	
 protected:
 	virtual void BeginPlay() override;

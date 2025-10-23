@@ -17,6 +17,9 @@ class HEREWEGOAGAIN_API UHealthBar : public UUserWidget
 
 public:
 
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UProgressBar* ProgressBar;
+	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
+	void InitialiseHealthBar(int Health);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
+	void DepleteHealthBar(int Health);
 };
