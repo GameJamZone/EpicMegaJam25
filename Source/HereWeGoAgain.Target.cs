@@ -8,8 +8,11 @@ public class HereWeGoAgainTarget : TargetRules
 	public HereWeGoAgainTarget( TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
+		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;
+
 		ExtraModuleNames.Add("HereWeGoAgain");
+		
+		//BuildEnvironment = TargetBuildEnvironment.Unique;
 	}
 }

@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "GameplayEffect.h"
-
+#include "Sound/SoundCue.h"
 #include "AbilityPayloads.generated.h"
 
 UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced)
