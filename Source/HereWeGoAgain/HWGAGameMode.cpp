@@ -104,6 +104,18 @@ void AHWGAGameMode::IncreaseRage()
 
 void AHWGAGameMode::HandleArenaMinQuotaReached(AArena* DeactivatedActor)
 {
+	if (DeactivatedActor->Tags.Contains("Boss"))
+	{
+		FGameplayMessagePayload BossDefeatedMessage;
+		
+		// Send the activation message
+		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+		FGameplayTag ChannelTag = ProjectGameplayTags::Message_Boss_Defeated;
+		 
+		MessageSubsystem.BroadcastMessage(ChannelTag, BossDefeatedMessage);
+		return;
+	}
+	
 	FArenaMinQuotaClearedMessage ArenaMinQuotaClearedMessage;
 	ArenaMinQuotaClearedMessage.MinQuota = DeactivatedActor->MinCleaningQuota;
 		
