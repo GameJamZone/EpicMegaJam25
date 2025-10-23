@@ -9,7 +9,7 @@
 UGA_PlayMontageCombo::UGA_PlayMontageCombo(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	bRetriggerInstancedAbility = false;
+	bRetriggerInstancedAbility = true;
 }
 
 void UGA_PlayMontageCombo::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -123,12 +123,32 @@ void UGA_PlayMontageCombo::OnMontageCompleted()
 
 void UGA_PlayMontageCombo::OnMontageCancelled()
 {
+	UAbilitySystemComponent* ASC = CurrentActorInfo ? CurrentActorInfo->AbilitySystemComponent.Get() : nullptr;
+	const FGameplayAbilitySpecHandle HandleCopy = CurrentSpecHandle;
+
+	const bool bWantsChain = bInputBuffered;
 	bInputBuffered = false;
+
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+
+	if (bWantsChain && ASC)
+	{
+		ASC->TryActivateAbility(HandleCopy);
+	}
 }
 
 void UGA_PlayMontageCombo::OnMontageInterrupted()
 {
+	UAbilitySystemComponent* ASC = CurrentActorInfo ? CurrentActorInfo->AbilitySystemComponent.Get() : nullptr;
+	const FGameplayAbilitySpecHandle HandleCopy = CurrentSpecHandle;
+
+	const bool bWantsChain = bInputBuffered;
 	bInputBuffered = false;
+
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+
+	if (bWantsChain && ASC)
+	{
+		ASC->TryActivateAbility(HandleCopy);
+	}
 }

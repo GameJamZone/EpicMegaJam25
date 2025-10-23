@@ -90,17 +90,20 @@ void UGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	
     if (ACharacter* Char = Cast<ACharacter>(Avatar))
     {
-    	ActorInfo->SkeletalMeshComponent->GetAnimInstance()->StopAllMontages(0.f);
-    	UAbilityTask_PlayMontageAndWait* Task =
-		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-			this,
-			NAME_None,
-			Montage,
-			1.2f,
-			"Default");
+	    if (Montage)
+	    {
+	    	ActorInfo->SkeletalMeshComponent->GetAnimInstance()->StopAllMontages(0.f);
+	    	UAbilityTask_PlayMontageAndWait* Task =
+			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this,
+				NAME_None,
+				Montage,
+				1.2f,
+				"Default");
 
-    	Task->OnCompleted.AddDynamic(this, &UGA_HitReact::OnMontageCompleted);
-    	Task->ReadyForActivation();
+	    	Task->OnCompleted.AddDynamic(this, &UGA_HitReact::OnMontageCompleted);
+	    	Task->ReadyForActivation();
+	    }
     	
 		ApplyHitStop(Char, HitStopDilation, HitStopDuration, KnockDir);
 		Jolt(Char, ActorInfo->SkeletalMeshComponent.Get());
@@ -122,7 +125,6 @@ void UGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 
 void UGA_HitReact::ApplyHitStop(ACharacter* Char, float Dilation, float DurationSec, FVector KnockDir)
 {
-	
 	if (!Char || DurationSec <= 0.f) return;
 	Dilation = FMath::Clamp(Dilation, 0.05f, 1.0f);
 
@@ -148,9 +150,18 @@ void UGA_HitReact::ApplyHitStop(ACharacter* Char, float Dilation, float Duration
 				FVector::ZeroVector,
 				0.f,
 				false);
+
 			
-			if (Task) Task->ReadyForActivation();
+			if (!Task)
+			{
+				EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+			}
+			
+			Task->OnFinish.AddDynamic(this, &UGA_HitReact::OnMontageCompleted);
+			Task->ReadyForActivation();
 		}
+
+		
 		
 	}), DurationSec, false);
 }
