@@ -12,6 +12,8 @@ class UStaticMeshComponent;
 class UStaticMesh;
 class UImage;
 class UTexture2D;
+class UNiagaraSystem;
+class UNiagaraComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnArenaMinQuotaReached, AArena*, ArenaActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnArenaDeactivated, AArena*, DeactivatedArenaActor);
@@ -51,6 +53,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> WidgetComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HereWeGoAgain|Arena|Effects")
+	TObjectPtr<UNiagaraComponent> NiagaraEffectComponent;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
 
@@ -60,6 +65,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
 	TObjectPtr<UStaticMesh> InactiveBuildingMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HereWeGoAgain|Arena|Effects")
+	TArray<TObjectPtr<UNiagaraSystem>> ActivationNiagaraEffects;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
 	TObjectPtr<USphereComponent> CleanableArea;
 	
@@ -101,6 +109,9 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, Category=Message)
 	TMap<FGameplayTag, FCleanableObjectData> TotalCleanableObjects;
+
+	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Spawn")
+	virtual void PlayActivationEffects();
 	
 	/** Spawns all actors defined in the data table */
 	UFUNCTION(BlueprintCallable, Category="HereWeGoAgain|Spawn")

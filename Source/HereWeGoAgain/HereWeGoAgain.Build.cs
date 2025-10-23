@@ -25,7 +25,8 @@ public class HereWeGoAgain : ModuleRules
 	        "GameplayTasks",
 	        "GameplayMessageRuntime", 
 	        "GameplayStateTreeModule",
-	        "AIModule",
+	        "AIModule", 
+	        "Niagara"
         });
 
         // Uncomment if you are using Slate UI

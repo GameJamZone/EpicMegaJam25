@@ -9,6 +9,8 @@
 #include "SpawnableInterface.h"
 #include "Components/SphereComponent.h"
 #include "HereWeGoAgain/GASPlayerCharacter.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 AArena::AArena()
 {
@@ -23,6 +25,10 @@ AArena::AArena()
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(CleanableArea);
+
+	NiagaraEffectComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraEffect"));
+	NiagaraEffectComponent->SetupAttachment(CleanableArea);
+	NiagaraEffectComponent->bAutoActivate = false;
 	
 	//WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
 	//WidgetComponent->SetupAttachment(RootComponent);
@@ -38,11 +44,18 @@ AArena::AArena()
 
 void AArena::ActivateArena()
 {
+	if (NiagaraEffectComponent)
+	{
+		NiagaraEffectComponent->Activate(true);
+	}
+	
+	PlayActivationEffects();
+	
 	if (StaticMeshComponent && ActiveBuildingMesh)
 		StaticMeshComponent->SetStaticMesh(ActiveBuildingMesh);
 	
 	SpawnAllCleanableActors();
-
+	
 	bArenaIsActive = true;
 
 	// if (UUserWidget* Widget = WidgetComponent->GetUserWidgetObject())
@@ -133,6 +146,24 @@ void AArena::BeginPlay()
 void AArena::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AArena::PlayActivationEffects()
+{
+	UWorld* World = GetWorld();
+	if (!World)
+		return;
+
+	const FVector Location = GetActorLocation();
+	const FRotator Rotation = GetActorRotation();
+
+	for (UNiagaraSystem* NiagaraEffect : ActivationNiagaraEffects)
+	{
+		if (NiagaraEffect)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(World, NiagaraEffect, Location, Rotation);
+		}
+	}
 }
 
 bool AArena::SpawnAllCleanableActors()
