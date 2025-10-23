@@ -12,6 +12,7 @@
 #include "GameFramework/MovementComponent.h"
 #include "GameFramework/GameUserSettings.h"
 #include "GameFramework/PlayerState.h"
+#include "HereWeGoAgain/HWGACharacterAttributeSet.h"
 #include "HereWeGoAgain/ProjectGameplayTags.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -88,24 +89,37 @@ void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 				if (SourceASC) 
 				{
 					FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
-					EffectContext.AddSourceObject(Owner);
-					EffectContext.AddInstigator(Owner, Owner);
-					EffectContext.AddHitResult(Hit);
+					
+					AActor* SourceActor = SourceASC->GetOwnerActor();   // e.g. PlayerState or AIController owner
+					AActor* AvatarActor = SourceASC->GetAvatarActor();  // usually the Character
 
+					EffectContext.AddInstigator(SourceActor, AvatarActor);
+					EffectContext.AddSourceObject(AvatarActor); // optional but often good to include
+					EffectContext.AddHitResult(Hit);
+					
 					FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, 1, EffectContext);
 					if (SpecHandle.IsValid())
 					{
-						auto* targetasc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
-						if (!targetasc)
+						auto* Targetasc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+						if (!Targetasc)
 						{
 							auto* targetchar = Cast<ACharacter>(HitActor);
 							if (auto* TPS = targetchar->GetPlayerState())
 							{
-								targetasc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TPS);
+								Targetasc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TPS);
+								
 							}
 						}
-						
-						SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), targetasc);
+
+						float DamageMultiplier = SourceASC->GetSet<UHWGACharacterAttributeSet>()->GetAttackMultiplier();
+						float FinalDamage = DamageAmount * DamageMultiplier;
+
+						FGameplayEffectSpec* Spec = SpecHandle.Data.Get();
+						Spec->SetSetByCallerMagnitude(ProjectGameplayTags::Event_Combat_Hit_Health, -FinalDamage);
+
+						UE_LOG(LogTemp, Warning, TEXT("Applying %f damage to %s"), FinalDamage, *HitActor->GetName());
+
+						SourceASC->ApplyGameplayEffectSpecToTarget(*Spec, Targetasc);
 					}
 				}
 			}

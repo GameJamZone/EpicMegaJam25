@@ -43,6 +43,9 @@ public:
 	TSubclassOf<UGameplayEffect> DamageEffect;
 
 	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")
+	float DamageAmount;
+
+	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 
 	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")

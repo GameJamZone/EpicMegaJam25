@@ -10,6 +10,7 @@ namespace ProjectGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Jump);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combat_Hit);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combat_Hit_Death);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combat_Hit_Health);
     
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Arena_Activated);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Arena_Updated);

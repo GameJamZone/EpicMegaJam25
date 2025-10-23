@@ -28,6 +28,8 @@ public:
 	ATTRIBUTE_ACCESSORS(UHWGACharacterAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UHWGACharacterAttributeSet, MovementSpeed);
 	ATTRIBUTE_ACCESSORS(UHWGACharacterAttributeSet, BaseMovementSpeed);
+	ATTRIBUTE_ACCESSORS(UHWGACharacterAttributeSet, AttackMultiplier);
+	ATTRIBUTE_ACCESSORS(UHWGACharacterAttributeSet, AttackSpeedMultiplier);
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
@@ -40,6 +42,13 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_MovementSpeed)
 	FGameplayAttributeData BaseMovementSpeed;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_MovementSpeed)
+	FGameplayAttributeData AttackMultiplier;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_MovementSpeed)
+	FGameplayAttributeData AttackSpeedMultiplier;
+	
 
 	UFUNCTION()
 	virtual void OnRep_Health(const FGameplayAttributeData& OldHealth);
