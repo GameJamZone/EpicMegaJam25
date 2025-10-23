@@ -8,6 +8,8 @@
 #include "Arena.generated.h"
 
 class USphereComponent;
+class UStaticMeshComponent;
+class UStaticMesh;
 class UImage;
 class UTexture2D;
 
@@ -47,9 +49,18 @@ public:
 	FOnArenaDeactivated OnArenaDeactivated;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UWidgetComponent* WidgetComponent;
+	TObjectPtr<UWidgetComponent> WidgetComponent;
 
-	UPROPERTY(editAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
+	TObjectPtr<UStaticMesh> ActiveBuildingMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
+	TObjectPtr<UStaticMesh> InactiveBuildingMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
 	TObjectPtr<USphereComponent> CleanableArea;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HereWeGoAgain|UI")

@@ -20,45 +20,53 @@ AArena::AArena()
 
 	CleanableArea->OnComponentBeginOverlap.AddDynamic(this, &AArena::OnAreanEntered);
 	CleanableArea->OnComponentEndOverlap.AddDynamic(this, &AArena::OnAreanExited);
+
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	StaticMeshComponent->SetupAttachment(CleanableArea);
 	
-	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
-	WidgetComponent->SetupAttachment(RootComponent);
+	//WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	//WidgetComponent->SetupAttachment(RootComponent);
 
 	// Set the widget class (replace with your blueprint path)
-	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Game/Blueprints/Widgets/W_ArenaUIDebug"));
-	if (WidgetClass.Succeeded())
-	{
-		WidgetComponent->SetWidgetClass(WidgetClass.Class);
-		WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen); 
-	}
+	// static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Game/Blueprints/Widgets/W_ArenaUIDebug"));
+	// if (WidgetClass.Succeeded())
+	// {
+	// 	WidgetComponent->SetWidgetClass(WidgetClass.Class);
+	// 	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen); 
+	// }
 }
 
 void AArena::ActivateArena()
 {
+	if (StaticMeshComponent && ActiveBuildingMesh)
+		StaticMeshComponent->SetStaticMesh(ActiveBuildingMesh);
+	
 	SpawnAllCleanableActors();
 
 	bArenaIsActive = true;
 
-	if (UUserWidget* Widget = WidgetComponent->GetUserWidgetObject())
-	{
-		if (UArenaWidget* ImageWidget = Cast<UArenaWidget>(Widget))
-		{
-			if (auto Texture = ImageWidget->ActiveArenaTexture)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Setting ActiveArenaTexture on %s"), *ImageWidget->GetName());
-				ImageWidget->SetImageTexture(Texture);
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("ActiveArenaTexture is null on %s"), *ImageWidget->GetName());
-			}
-		}
-	}
-	
+	// if (UUserWidget* Widget = WidgetComponent->GetUserWidgetObject())
+	// {
+	// 	if (UArenaWidget* ImageWidget = Cast<UArenaWidget>(Widget))
+	// 	{
+	// 		if (auto Texture = ImageWidget->ActiveArenaTexture)
+	// 		{
+	// 			UE_LOG(LogTemp, Warning, TEXT("Setting ActiveArenaTexture on %s"), *ImageWidget->GetName());
+	// 			ImageWidget->SetImageTexture(Texture);
+	// 		}
+	// 		else
+	// 		{
+	// 			UE_LOG(LogTemp, Warning, TEXT("ActiveArenaTexture is null on %s"), *ImageWidget->GetName());
+	// 		}
+	// 	}
+	// }
 }
 
 void AArena::DeactivateArena()
 {
+	if (StaticMeshComponent && InactiveBuildingMesh)
+		StaticMeshComponent->SetStaticMesh(InactiveBuildingMesh);
+	
 	bArenaIsActive = false;
 	bAlreadyEntered = false;
 	bMinQuotaCleared = false;
@@ -77,21 +85,21 @@ void AArena::DeactivateArena()
 		}
 	}
 	
-	if (UUserWidget* Widget = WidgetComponent->GetUserWidgetObject())
-	{
-		if (UArenaWidget* ImageWidget = Cast<UArenaWidget>(Widget))
-		{
-			if (auto Texture = ImageWidget->DefaultTexture)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Setting ActiveArenaTexture on %s"), *ImageWidget->GetName());
-				ImageWidget->SetImageTexture(Texture);
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("ActiveArenaTexture is null on %s"), *ImageWidget->GetName());
-			}
-		}
-	}
+	// if (UUserWidget* Widget = WidgetComponent->GetUserWidgetObject())
+	// {
+	// 	if (UArenaWidget* ImageWidget = Cast<UArenaWidget>(Widget))
+	// 	{
+	// 		if (auto Texture = ImageWidget->DefaultTexture)
+	// 		{
+	// 			UE_LOG(LogTemp, Warning, TEXT("Setting ActiveArenaTexture on %s"), *ImageWidget->GetName());
+	// 			ImageWidget->SetImageTexture(Texture);
+	// 		}
+	// 		else
+	// 		{
+	// 			UE_LOG(LogTemp, Warning, TEXT("ActiveArenaTexture is null on %s"), *ImageWidget->GetName());
+	// 		}
+	// 	}
+	// }
 }
 
 TArray<FGameplayTag> AArena::GetAllUniqueSpawnedActorTags() const
