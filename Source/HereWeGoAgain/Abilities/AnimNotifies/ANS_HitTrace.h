@@ -15,14 +15,18 @@ class UGameplayEffect;
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable, meta = (DisplayName = "Hit Trace"))
 class HEREWEGOAGAIN_API UANS_HitTrace : public UAnimNotifyState
 {
-	GENERATED_BODY()
+	GENERATED_UCLASS_BODY()
 
 public:
+	
+	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
-	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime) override;
+	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime,  const FAnimNotifyEventReference& EventReference) override;
+	void PerformSphereTraceDeferred(USkeletalMeshComponent* MeshComp, const FVector& WorldStart,
+	                                const FVector& WorldEnd);
 
 	UPROPERTY(editAnywhere, BlueprintReadWrite, Category = "HitTrace")
 	FName StartSocketName;

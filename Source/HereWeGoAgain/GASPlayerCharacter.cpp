@@ -50,6 +50,8 @@ AGASPlayerCharacter::AGASPlayerCharacter(const FObjectInitializer& ObjectInitial
 
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
 	HealthBarComponent->SetupAttachment(RootComponent);
+
+	GetMesh()->PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
 }
 
 void AGASPlayerCharacter::NotifyControllerChanged()

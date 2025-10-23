@@ -16,29 +16,80 @@
 #include "HereWeGoAgain/ProjectGameplayTags.h"
 #include "Kismet/GameplayStatics.h"
 
+
+UANS_HitTrace::UANS_HitTrace(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+	bIsNativeBranchingPoint = true;
+}
+
+void UANS_HitTrace::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration,
+                                const FAnimNotifyEventReference& EventReference)
+{
+	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
+	ActorsToIgnore.Reset(); 
+}
+
 void UANS_HitTrace::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::NotifyEnd(MeshComp, Animation);
 	ActorsToIgnore.Reset();
 }
 
-void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
+void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime,  const FAnimNotifyEventReference& EventReference)
 {
-	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime);
-
-	const FVector StartSocket = MeshComp->GetSocketLocation(StartSocketName);
-	const FVector EndSocket = MeshComp->GetSocketLocation(EndSocketName);
-
-	// TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	// ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
-	// ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
-
-	TArray<FHitResult> HitResults;
+	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 	
-	UKismetSystemLibrary::SphereTraceMultiForObjects(MeshComp, StartSocket, EndSocket, Radius, ObjectTypes,
-	                                                 false, ActorsToIgnore, DrawDebugType,
-	                                                 HitResults, true, FLinearColor::Green,
-	                                                 FLinearColor::Green, 1.f);
+	if (!MeshComp) return;
+	
+	const FTransform LocalStartXform = MeshComp->GetSocketTransform(StartSocketName, RTS_Component);
+	const FTransform LocalEndXform   = MeshComp->GetSocketTransform(EndSocketName, RTS_Component);
+
+	// Convert to local positions (component space)
+	const FVector LocalStart = LocalStartXform.GetLocation();
+	const FVector LocalEnd   = LocalEndXform.GetLocation();
+
+	// Copy component transform now (cheap) — we won't call UpdateComponentToWorld or other unsafe calls.
+	const FTransform ComponentXform = MeshComp->GetComponentTransform();
+
+	// Now defer the trace to next tick so the rest of the engine has finalized world transforms.
+	// We capture the world-space positions using the component transform we just captured.
+	FVector DeferredWorldStart = ComponentXform.TransformPosition(LocalStart);
+	FVector DeferredWorldEnd   = ComponentXform.TransformPosition(LocalEnd);
+
+	// DrawDebugSphere(MeshComp->GetWorld(), DeferredWorldStart, 20.f, 12, FColor::Red, false, 0.1f);
+	// DrawDebugSphere(MeshComp->GetWorld(), DeferredWorldEnd, 20.f, 12, FColor::Green, false, 0.1f);
+	
+	if (UWorld* World = MeshComp->GetWorld())
+	{
+		FTimerDelegate TraceDelegate;
+		TraceDelegate.BindLambda([this, MeshComp, DeferredWorldStart, DeferredWorldEnd]()
+		{
+			if (!MeshComp) return;
+			PerformSphereTraceDeferred(MeshComp, DeferredWorldStart, DeferredWorldEnd);
+		});
+
+		World->GetTimerManager().SetTimerForNextTick(TraceDelegate);
+	}
+}
+
+void UANS_HitTrace::PerformSphereTraceDeferred(USkeletalMeshComponent* MeshComp, const FVector& WorldStart, const FVector& WorldEnd)
+{
+	TArray<FHitResult> HitResults;
+	UKismetSystemLibrary::SphereTraceMultiForObjects(
+		MeshComp,
+		WorldStart,
+		WorldEnd,
+		Radius,
+		ObjectTypes,
+		false,
+		ActorsToIgnore,
+		DrawDebugType,
+		HitResults,
+		true,
+		FLinearColor::Green,
+		FLinearColor::Green,
+		1.f
+	);
 
 	for (const FHitResult& Hit : HitResults)
 	{
@@ -123,7 +174,7 @@ void UANS_HitTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 					}
 				}
 			}
-			
 		}
 	}
 }
+
