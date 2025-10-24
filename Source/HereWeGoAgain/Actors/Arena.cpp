@@ -280,6 +280,18 @@ bool AArena::IsArenaMinQuotaCleared(FGameplayTag Key)
 
 	if (CurrentAmountCleaned >= MinQuotaObjectCount && !bMinQuotaCleared)
 	{
+
+		TArray<AActor*> OverlappingActors;
+		CleanableArea->GetOverlappingActors(OverlappingActors);
+		
+		for (AActor* Actor : OverlappingActors)
+		{
+			AGASPlayerCharacter* ActorChar = Cast<AGASPlayerCharacter>(Actor);
+			if (ActorChar)
+			{
+				ActorChar->SetDirectionArrowVisibility(true);
+			}
+		}
 		OnArenaMinQuotaCleared.Broadcast(this);
 		return true;
 	}
@@ -300,6 +312,13 @@ bool AArena::IsArenaCleared() const
 	
 	if (currentTotal == maxTotal)
 	{
+
+		FArenaMinQuotaClearedMessage ArenaMinQuotaClearedMessage;
+		// Send the activation message
+		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+		FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_MinQuotaCleared;
+		MessageSubsystem.BroadcastMessage(ChannelTag, ArenaMinQuotaClearedMessage);
+
 		return true;
 	}
 	

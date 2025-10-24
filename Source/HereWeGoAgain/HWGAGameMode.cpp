@@ -132,6 +132,8 @@ void AHWGAGameMode::HandleArenaMinQuotaReached(AArena* DeactivatedActor)
 	FGameplayTag ChannelTag = ProjectGameplayTags::Message_Arena_MinQuotaCleared;
 		 
 	MessageSubsystem.BroadcastMessage(ChannelTag, ArenaMinQuotaClearedMessage);
+
+	ArenaQueue.Dequeue(DeactivatedActor);
 	
 	//SelectRandomArenaToActivate();
 }
