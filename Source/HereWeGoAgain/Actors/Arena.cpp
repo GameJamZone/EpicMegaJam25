@@ -11,6 +11,7 @@
 #include "HereWeGoAgain/GASPlayerCharacter.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 
@@ -18,7 +19,7 @@ AArena::AArena()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	CleanableArea = CreateDefaultSubobject<USphereComponent>(TEXT("CleanableArea"));
+	CleanableArea = CreateDefaultSubobject<UBoxComponent>(TEXT("CleanableArea"));
 	CleanableArea->SetupAttachment(RootComponent);
 	CleanableArea->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 

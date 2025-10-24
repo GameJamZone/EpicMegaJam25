@@ -7,7 +7,8 @@
 
 #include "Arena.generated.h"
 
-class USphereComponent;
+
+class UBoxComponent;
 class UStaticMeshComponent;
 class UStaticMesh;
 class UImage;
@@ -74,7 +75,7 @@ public:
 	TArray<TObjectPtr<UNiagaraSystem>> ActivationNiagaraEffects;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HereWeGoAgain|Arena")
-	TObjectPtr<USphereComponent> CleanableArea;
+	TObjectPtr<UBoxComponent> CleanableArea;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HereWeGoAgain|UI")
 	TObjectPtr<UTexture2D> ActiveTexture;
