@@ -353,6 +353,29 @@ void AArena::OnAreanEntered(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	 
 	MessageSubsystem.BroadcastMessage(ChannelTag, NewArenaActivatedMessage);
 	
+
+	int MaxQuota = 0;
+	int CurrentAmountCleaned = 0;
+
+	for (auto CleanableObjectData: TotalCleanableObjects)
+	{
+		MaxQuota += CleanableObjectData.Value.Max;
+		CurrentAmountCleaned += CleanableObjectData.Value.Current;
+	}
+	
+	FUpdateArenaTotalsMessage UpdateArenaTotalsMessage;
+
+	// This data is not needed
+	UpdateArenaTotalsMessage.ActorTypeTag; 
+	UpdateArenaTotalsMessage.CurrentAmountForActorType;
+	
+	UpdateArenaTotalsMessage.BarMaxQuota = MaxQuota;
+	UpdateArenaTotalsMessage.BarCurrentAmountCleaned = CurrentAmountCleaned;
+		
+	// Send the activation message
+	FGameplayTag Tag = ProjectGameplayTags::Message_Arena_Updated;
+	MessageSubsystem.BroadcastMessage(Tag, UpdateArenaTotalsMessage);
+	
 	bAlreadyEntered = true;
 }
 
