@@ -63,6 +63,12 @@ void UGA_AI_Chase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		return;
 	}
 
+	if (AIController->IsFollowingAPath())
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
 	AIControllerPtr = AIController;
 	TargetActorPtr = TargetActor;
 

@@ -1,5 +1,6 @@
 #include "Arena.h"
 
+#include "AIController.h"
 #include "CleanableActor.h"
 #include "SpawnArea.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
@@ -12,6 +13,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "Components/BoxComponent.h"
+#include "HereWeGoAgain/GASEnemyCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 
@@ -338,6 +340,19 @@ void AArena::OnAreanEntered(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 void AArena::OnAreanExited(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex)
 {
+	AGASEnemyCharacter* EnemyActor = Cast<AGASEnemyCharacter>(OtherActor);
+
+	if (EnemyActor)
+	{
+		if (auto* AIController = Cast<AAIController>(EnemyActor->GetController()))
+		{
+			AIController->StopMovement();
+			AIController->SetFocus(this);
+			AIController->MoveToActor(this, 200);
+			return;
+		}
+	}
+	
 	AGASPlayerCharacter* Actor = Cast<AGASPlayerCharacter>(OtherActor);
 	
 	if (!Actor || !bArenaIsActive)
