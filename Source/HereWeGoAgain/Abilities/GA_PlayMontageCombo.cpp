@@ -44,7 +44,7 @@ void UGA_PlayMontageCombo::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
-
+	
 	if (!CachedMontage)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -70,13 +70,13 @@ void UGA_PlayMontageCombo::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 
 	LastAttackTime = Now;
 
-	CachedPlayRate *= GetAbilitySystemComponentFromActorInfo()->GetSet<UHWGACharacterAttributeSet>()->GetAttackSpeedMultiplier();
+	float TempCachedPlayRate =  CachedPlayRate * GetAbilitySystemComponentFromActorInfo()->GetSet<UHWGACharacterAttributeSet>()->GetAttackSpeedMultiplier();
 	UAbilityTask_PlayMontageAndWait* Task =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
 			NAME_None,
 			CachedMontage,
-			CachedPlayRate,
+			TempCachedPlayRate,
 			StartSection,
 			bCachedStopWhenAbilityEnds,
 			CachedAnimRootMotionTranslationScale);
@@ -87,11 +87,27 @@ void UGA_PlayMontageCombo::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 		return;
 	}
 
-	Task->OnCompleted.AddDynamic(this, &UGA_PlayMontage::OnMontageCompleted);
-	Task->OnInterrupted.AddDynamic(this, &UGA_PlayMontage::OnMontageInterrupted);
-	Task->OnCancelled.AddDynamic(this, &UGA_PlayMontage::OnMontageCancelled);
+	Task->OnCompleted.AddDynamic(this, &UGA_PlayMontageCombo::OnMontageCompleted);
+	Task->OnInterrupted.AddDynamic(this, &UGA_PlayMontageCombo::OnMontageInterrupted);
+	Task->OnCancelled.AddDynamic(this, &UGA_PlayMontageCombo::OnMontageCancelled);
 	Task->ReadyForActivation();
 
+	if (UAnimMontage* MontageAsset = CachedMontage)
+	{
+		const float EstimatedDuration = MontageAsset->GetPlayLength() / TempCachedPlayRate;
+		FTimerHandle CleanupTimer;
+		ActorInfo->AvatarActor->GetWorldTimerManager().SetTimer(
+			CleanupTimer,
+			FTimerDelegate::CreateWeakLambda(this, [this, Handle, ActorInfo, ActivationInfo]()
+			{
+				if (IsActive())
+				{
+					EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
+				}
+			}),
+			EstimatedDuration + 0.2f,
+			false);
+	}
 }
 
 void UGA_PlayMontageCombo::InputPressed(const FGameplayAbilitySpecHandle Handle,
@@ -108,6 +124,9 @@ void UGA_PlayMontageCombo::InputReleased(const FGameplayAbilitySpecHandle Handle
 
 void UGA_PlayMontageCombo::OnMontageCompleted()
 {
+
+	UE_LOG(LogTemp, Warning, TEXT("[ATTACK] Montage completed, ending ability manually."));
+	
 	// Cache before ending; we’ll re-activate immediately if input was buffered
 	UAbilitySystemComponent* ASC = CurrentActorInfo ? CurrentActorInfo->AbilitySystemComponent.Get() : nullptr;
 	const FGameplayAbilitySpecHandle HandleCopy = CurrentSpecHandle;
@@ -125,6 +144,7 @@ void UGA_PlayMontageCombo::OnMontageCompleted()
 
 void UGA_PlayMontageCombo::OnMontageCancelled()
 {
+	UE_LOG(LogTemp, Warning, TEXT("[ATTACK] Montage Cancelled, ending ability manually."));
 	UAbilitySystemComponent* ASC = CurrentActorInfo ? CurrentActorInfo->AbilitySystemComponent.Get() : nullptr;
 	const FGameplayAbilitySpecHandle HandleCopy = CurrentSpecHandle;
 
@@ -141,6 +161,7 @@ void UGA_PlayMontageCombo::OnMontageCancelled()
 
 void UGA_PlayMontageCombo::OnMontageInterrupted()
 {
+	UE_LOG(LogTemp, Warning, TEXT("[ATTACK] Montage interrupted, ending ability manually."));
 	UAbilitySystemComponent* ASC = CurrentActorInfo ? CurrentActorInfo->AbilitySystemComponent.Get() : nullptr;
 	const FGameplayAbilitySpecHandle HandleCopy = CurrentSpecHandle;
 

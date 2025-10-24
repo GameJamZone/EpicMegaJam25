@@ -59,14 +59,14 @@ void UGA_PlayMontage::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		return;
 	}
 
-	CachedPlayRate = GetAbilitySystemComponentFromActorInfo()->GetSet<UHWGACharacterAttributeSet>()->GetAttackSpeedMultiplier();
+	float TempCachedPlayRate =  CachedPlayRate * GetAbilitySystemComponentFromActorInfo()->GetSet<UHWGACharacterAttributeSet>()->GetAttackSpeedMultiplier();
 	// Play montage and bind ending callbacks
 	UAbilityTask_PlayMontageAndWait* Task =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
 			NAME_None,
 			CachedMontage,
-			CachedPlayRate,
+			TempCachedPlayRate,
 			CachedStartSection,
 			bCachedStopWhenAbilityEnds,
 			CachedAnimRootMotionTranslationScale);
@@ -82,6 +82,22 @@ void UGA_PlayMontage::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	Task->OnCancelled.AddDynamic(this, &UGA_PlayMontage::OnMontageCancelled);
 	Task->ReadyForActivation();
 
+	if (UAnimMontage* MontageAsset = CachedMontage)
+	{
+		const float EstimatedDuration = MontageAsset->GetPlayLength() / TempCachedPlayRate;
+		FTimerHandle CleanupTimer;
+		ActorInfo->AvatarActor->GetWorldTimerManager().SetTimer(
+			CleanupTimer,
+			FTimerDelegate::CreateWeakLambda(this, [this, Handle, ActorInfo, ActivationInfo]()
+			{
+				if (IsActive())
+				{
+					EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
+				}
+			}),
+			EstimatedDuration + 0.2f,
+			false);
+	}
 }
 
 void UGA_PlayMontage::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,

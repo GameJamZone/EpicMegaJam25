@@ -95,7 +95,6 @@ void UGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
     {
 	    if (Montage)
 	    {
-	    	ActorInfo->SkeletalMeshComponent->GetAnimInstance()->StopAllMontages(0.f);
 	    	UAbilityTask_PlayMontageAndWait* Task =
 			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
