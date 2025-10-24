@@ -235,9 +235,9 @@ void AArena::OnSpawnedActorDestroyed(AActor* DestroyedActor)
 
 		TotalCleanableObjects[Key].Current += 1;
 		
-		if (!bMinQuotaCleared)
+		if (IsArenaMinQuotaCleared(Key))
 		{
-			bMinQuotaCleared = IsArenaMinQuotaCleared(Key);
+			bMinQuotaCleared = true;
 		}
 
 		if (IsArenaCleared())
@@ -275,7 +275,7 @@ bool AArena::IsArenaMinQuotaCleared(FGameplayTag Key)
 	float MinQuotaPercent = MinCleaningQuota / 100;
 	float MinQuotaObjectCount = MaxQuota * MinQuotaPercent;
 
-	if (CurrentAmountCleaned >= MinQuotaObjectCount)
+	if (CurrentAmountCleaned >= MinQuotaObjectCount && !bMinQuotaCleared)
 	{
 		OnArenaMinQuotaCleared.Broadcast(this);
 		return true;
